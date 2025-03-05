@@ -1,4 +1,5 @@
 using Fanex.Data;
+using Fanex.Logging.Sentry.RavenClient;
 using Settlement.Consumer.Models;
 using Settlement.QueueHandlerService;
 
@@ -11,6 +12,7 @@ services.AddFanexData(builder.Configuration);
 services.Configure<AppSettingsKey>(builder.Configuration);
 services.AddHttpClient();
 services.AddCoreServices();
+services.AddFanexLogSentry(builder.Configuration);
 services.AddAutoMapper();
 
 

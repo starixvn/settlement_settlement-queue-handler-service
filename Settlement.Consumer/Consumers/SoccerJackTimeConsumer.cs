@@ -20,14 +20,20 @@ public class SoccerJackTimeConsumer(
 
     public async Task Consume(ConsumeContext<SoccerResult> context)
     {
-        var marketOffered = await requestService.GetMarkets(context.Message.MatchId);
-        if (!marketOffered.Any())
+        try
         {
-            return;
+            var marketOffered = await requestService.GetMarkets(context.Message.MatchId);
+            if (!marketOffered.Any())
+            {
+                return;
+            }
+
+            await UpdateResultMarket(context.Message, marketOffered);
         }
-
-        await UpdateResultMarket(context.Message, marketOffered);
-
+        catch (Exception e)
+        {
+            await Fanex.Logging.LogService.ErrorAsync($"Soccer JackTime Update Market Failed: {e.Message}");
+        }
     }
 
     private async Task UpdateResultMarket(SoccerResult result, IEnumerable<Market> marketOffered)
@@ -35,22 +41,10 @@ public class SoccerJackTimeConsumer(
         var criteria = mapper.Map<SoccerResult, CashOutSelCriteria>(result);
         criteria.Markets = JsonConvert.SerializeObject(marketOffered);
 
-        var tasks = appSettingsKey.SiteDbServer.Select(s => GetResult(s, criteria)).ToList();
+        var results = await repository.FetchAsync<JackTimeResult>(criteria);
 
-        var results = await Task.WhenAll(tasks.ToArray());
+        var soccerJackTimeRequest = requestService.CreateSoccerJTRequest(marketOffered, results);
 
-        var soccerJackTimeRequest = requestService.CreateSoccerJTRequest(marketOffered, results.SelectMany(r => r));
-
-
-        if (soccerJackTimeRequest.Request.Markets.Any())
-            await requestService.UpdateMarkets(soccerJackTimeRequest);
+        await requestService.UpdateMarkets(soccerJackTimeRequest);
     }
-
-    private async Task<IEnumerable<JackTimeResult>> GetResult(string dbServer, CashOutSelCriteria criteria)
-    {
-        criteria.DbServer = dbServer;
-        return await repository.FetchAsync<JackTimeResult>(criteria);
-    }
-
-
 }

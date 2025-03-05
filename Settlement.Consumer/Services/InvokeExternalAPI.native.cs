@@ -22,9 +22,10 @@ public class InvokeExternalAPI(IHttpClientFactory httpClientFactory) : IInvokeEx
             var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
             var httpClient = httpClientFactory.CreateClient();
 
-            await httpClient.PostAsync(new Uri(url), requestContent);
+            var response = await httpClient.PostAsync(new Uri(url), requestContent);
+            response.EnsureSuccessStatusCode();
         }
-        catch (Exception exception)
+        catch (HttpRequestException exception)
         {
             await Fanex.Logging.LogService.ErrorAsync($"Queue Handler (Call API Failed): {url} : {json}", exception);
         }
@@ -38,15 +39,17 @@ public class InvokeExternalAPI(IHttpClientFactory httpClientFactory) : IInvokeEx
             var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
             var httpClient = httpClientFactory.CreateClient();
             var response = await httpClient.PutAsync(new Uri(url), requestContent);
+            response.EnsureSuccessStatusCode();
             var responseContent = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<Response>(responseContent)!;
+
         }
-        catch (Exception exception)
+        catch (HttpRequestException exception)
         {
             await Fanex.Logging.LogService.ErrorAsync($"Queue Handler (Call API Failed): {url} : {json}", exception);
         }
 
-        return new Response { IsSuccess = false, Message = "" };
+        return new Response { IsSuccess = true, Message = "" };
     }
 
 
@@ -56,10 +59,11 @@ public class InvokeExternalAPI(IHttpClientFactory httpClientFactory) : IInvokeEx
         {
             var httpClient = httpClientFactory.CreateClient();
             var response = await httpClient.GetAsync(new Uri(url));
+            response.EnsureSuccessStatusCode();
             var responseContent = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<T>(responseContent);
         }
-        catch (Exception exception)
+        catch (HttpRequestException exception)
         {
             await Fanex.Logging.LogService.ErrorAsync($"Queue Handler (Call API Failed): {url}", exception);
             return default;

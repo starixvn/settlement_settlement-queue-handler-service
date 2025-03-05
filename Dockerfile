@@ -1,15 +1,15 @@
 FROM hub.nexdev.net/base/dotnet/core/sdk:9.0-alpine AS builder
 WORKDIR /src
 
-COPY ./Sources/ThirdPartyBroadcast.Consumer ./ThirdPartyBroadcast.Consumer
-COPY ./Sources/ThirdPartyBroadcast.Consumer.Service/ThirdPartyBroadcast.Consumer.Service.csproj ./ThirdPartyBroadcast.Consumer.Service/ThirdPartyBroadcast.Consumer.Service.csproj
+COPY ./Settlement.Consumer ./Settlement.Consumer
+COPY ./Settlement.QueueHandlerService/Settlement.QueueHandlerService.csproj ./Settlement.QueueHandlerService/Settlement.QueueHandlerService.csproj
 
-WORKDIR /src/ThirdPartyBroadcast.Consumer.Service
+WORKDIR /src/Settlement.QueueHandlerService
 RUN dotnet nuget add source https://nuget.nexdev.net/api/v2
 RUN --mount=type=cache,target=/root/.nuget/packages \ 
 	dotnet restore -v n -r linux-x64
 
-COPY ./Sources/ThirdPartyBroadcast.Consumer.Service .
+COPY ./Settlement.QueueHandlerService .
 
 RUN --mount=type=cache,target=/root/.nuget/packages \
 	dotnet publish -r linux-x64 --self-contained false -c Release -o /app 
@@ -22,4 +22,4 @@ COPY --from=builder /app .
 ENV TZ="America/La_Paz"
 ENV COMPlus_EnableDiagnostics=0
 
-ENTRYPOINT ["dotnet", "ThirdPartyBroadcast.Consumer.Service.dll"]
+ENTRYPOINT ["dotnet", "Settlement.QueueHandlerService.dll"]

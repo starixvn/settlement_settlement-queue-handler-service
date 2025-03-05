@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Functions SiteName="NAP - Settlement site">
-  <Function Name="Cricket">
-    <Setting Key="NAP_Set_MatchSelInfo" SpName="NAP_Set_MatchSelInfo" DbName="DBPRO.bodb02.wsv_nap" />
+  <Function Name="CashoutSel">
+    <Setting Key="NAP_Settlement_1_CashoutSel" SpName="NAP_Settlement_1_CashoutSel" DbName="DBTXN.bodb02.wsv_nap" />
   </Function>
 </Functions>

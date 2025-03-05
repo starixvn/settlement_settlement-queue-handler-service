@@ -13,4 +13,6 @@ public class JackTimeResult
     public int OutCome { get; set; }
 
     public string ResourceId { get; set; }
+
+    public string Way { get; set; }
 }
