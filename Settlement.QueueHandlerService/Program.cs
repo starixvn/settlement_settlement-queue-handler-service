@@ -20,4 +20,8 @@ services.AddAutoMapper();
 var app = builder.Build();
 
 
-app.Run();
+app.Run(async context =>
+{
+    await context.Response.WriteAsync("OK");
+});
+await app.RunAsync();
