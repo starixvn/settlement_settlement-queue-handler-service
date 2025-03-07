@@ -1,55 +1,37 @@
 ﻿using Newtonsoft.Json;
-using Settlement.Consumer.Models;
 using System.Text;
 
 namespace Settlement.Consumer.Services;
 public interface IInvokeExternalAPI
 {
-    Task PostAsync(object request, string url);
+    Task<HttpResponseMessage> PostAsync(object request, string url);
 
     Task<T?> GetAsync<T>(string url);
 
-    Task<Response> PutAsync(object request, string url);
+    Task<HttpResponseMessage> PutAsync(object request, string url);
 }
 
 public class InvokeExternalAPI(IHttpClientFactory httpClientFactory) : IInvokeExternalAPI
 {
-    public async Task PostAsync(object request, string url)
+    public async Task<HttpResponseMessage> PostAsync(object request, string url)
     {
         var json = JsonConvert.SerializeObject(request);
-        try
-        {
-            var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
-            var httpClient = httpClientFactory.CreateClient();
+        var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
+        var httpClient = httpClientFactory.CreateClient();
 
-            var response = await httpClient.PostAsync(new Uri(url), requestContent);
-            response.EnsureSuccessStatusCode();
-        }
-        catch (HttpRequestException exception)
-        {
-            await Fanex.Logging.LogService.ErrorAsync($"Queue Handler (Call API Failed): {url} : {json}", exception);
-        }
+        var response = await httpClient.PostAsync(new Uri(url), requestContent);
+
+        return response;
+
     }
 
-    public async Task<Response> PutAsync(object request, string url)
+    public async Task<HttpResponseMessage> PutAsync(object request, string url)
     {
         var json = JsonConvert.SerializeObject(request);
-        try
-        {
-            var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
-            var httpClient = httpClientFactory.CreateClient();
-            var response = await httpClient.PutAsync(new Uri(url), requestContent);
-            response.EnsureSuccessStatusCode();
-            var responseContent = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<Response>(responseContent)!;
-
-        }
-        catch (HttpRequestException exception)
-        {
-            await Fanex.Logging.LogService.ErrorAsync($"Queue Handler (Call API Failed): {url} : {json}", exception);
-        }
-
-        return new Response { IsSuccess = true, Message = "" };
+        var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
+        var httpClient = httpClientFactory.CreateClient();
+        var response = await httpClient.PutAsync(new Uri(url), requestContent);
+        return response;
     }
 
 

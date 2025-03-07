@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Fanex.RemotingRef;
 using Settlement.Consumer;
 using Settlement.Consumer.Services;
 
@@ -21,7 +22,10 @@ public static class ServiceExtensions
     public static void AddCoreServices(this IServiceCollection services)
     {
         services.AddSingleton<IInvokeExternalAPI, InvokeExternalAPI>();
-        services.AddSingleton<IRequestMarketService, RequestMarketService>();
+        services.AddSingleton<IRequestService, RequestService>();
+        services.AddSingleton<SendMailService, SendMailServiceImp>();
+        services.AddSingleton<IHandleResponseService, HandleResponseService>();
+        services.AddSingleton<IRemotingRefService, RemotingRefService>();
     }
 
 }

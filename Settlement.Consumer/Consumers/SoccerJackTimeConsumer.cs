@@ -11,13 +11,11 @@ using Settlement.Consumer.Services;
 
 namespace Settlement.Consumer.Consumers;
 public class SoccerJackTimeConsumer(
-    IRequestMarketService requestService,
+    IRequestService requestService,
     IDynamicRepository repository,
     IMapper mapper,
     IOptions<AppSettingsKey> options) : IConsumer<SoccerResult>
 {
-    private readonly AppSettingsKey appSettingsKey = options.Value;
-
     public async Task Consume(ConsumeContext<SoccerResult> context)
     {
         try
@@ -28,6 +26,7 @@ public class SoccerJackTimeConsumer(
                 return;
             }
 
+            await UpdateTicket(context.Message);
             await UpdateResultMarket(context.Message, marketOffered);
         }
         catch (Exception e)
@@ -36,7 +35,7 @@ public class SoccerJackTimeConsumer(
         }
     }
 
-    private async Task UpdateResultMarket(SoccerResult result, IEnumerable<Market> marketOffered)
+    private async Task UpdateResultMarket(SoccerResult result, IList<Market> marketOffered)
     {
         var criteria = mapper.Map<SoccerResult, CashOutSelCriteria>(result);
         criteria.Markets = JsonConvert.SerializeObject(marketOffered);
@@ -45,6 +44,34 @@ public class SoccerJackTimeConsumer(
 
         var soccerJackTimeRequest = requestService.CreateSoccerJTRequest(marketOffered, results);
 
-        await requestService.UpdateMarkets(soccerJackTimeRequest);
+        await requestService.UpdateMarkets(soccerJackTimeRequest, marketOffered, result.MatchId);
+    }
+
+    private async Task UpdateTicket(SoccerResult result)
+    {
+        if (result.Action.Contains("CAL"))
+        {
+            return;
+        }
+        var criteria = mapper.Map<SoccerResult, SoccerGetTicketInfoCriteria>(result);
+        var getTicketInfoTasks = options.Value.SiteDbServer.Select(s => GetTicketInfo(s, criteria));
+        var responseTickets = await Task.WhenAll(getTicketInfoTasks.ToArray());
+        var ticketInfos = responseTickets.SelectMany(t => t).ToList();
+        if (ticketInfos.Any())
+        {
+            await requestService.UpdateVoidBetTicket(new VoidBetRequest
+            {
+                VoidBetInfos = ticketInfos,
+                MatchId = result.MatchId,
+                Action = result.Action
+            }, result.MatchId);
+        }
+    }
+
+    private async Task<IEnumerable<VoidBetInfo>> GetTicketInfo(string server, SoccerGetTicketInfoCriteria criteria)
+    {
+        criteria.DbServer = server;
+
+        return await repository.FetchAsync<VoidBetInfo>(criteria);
     }
 }
