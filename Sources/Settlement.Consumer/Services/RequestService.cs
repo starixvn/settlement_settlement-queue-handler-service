@@ -70,7 +70,7 @@ public class RequestService(
 
         return groupBetType.Select(r => new WayScore
         {
-            Id = r.Bettype,
+            Id = r.Way,
             Outcome = r.OutCome
         });
     }

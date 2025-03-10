@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35527.113
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{38BA979D-DB4F-4EE1-A8FB-91C5A73A6C9C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sources", "Sources", "{A3DFB907-9A21-42A7-8C36-648C37ECE8CD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Settlement.Consumer", "Sources\Settlement.Consumer\Settlement.Consumer.csproj", "{184A0447-A89A-448F-A9E8-84E3CB4CA48B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Settlement.QueueHandlerService", "Sources\Settlement.QueueHandlerService\Settlement.QueueHandlerService.csproj", "{634778AA-76DC-494A-BFFD-3FA05E9F5C71}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0C5E4C20-E72D-4300-8E12-DDD6CAD9ACF6}"
+	ProjectSection(SolutionItems) = preProject
+		.dockerignore = .dockerignore
+		.gitignore = .gitignore
+		.gitlab-ci.yml = .gitlab-ci.yml
+		Dockerfile = Dockerfile
+		Settlement.QueueHandlerService.sln.DotSettings = Settlement.QueueHandlerService.sln.DotSettings
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Settlement.Consumer.UnitTests", "Tests\Settlement.Consumer.UnitTests\Settlement.Consumer.UnitTests.csproj", "{F7C5DF30-1D8A-4243-BB34-9B8193E8DE27}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{184A0447-A89A-448F-A9E8-84E3CB4CA48B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{184A0447-A89A-448F-A9E8-84E3CB4CA48B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{184A0447-A89A-448F-A9E8-84E3CB4CA48B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{184A0447-A89A-448F-A9E8-84E3CB4CA48B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{634778AA-76DC-494A-BFFD-3FA05E9F5C71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{634778AA-76DC-494A-BFFD-3FA05E9F5C71}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{634778AA-76DC-494A-BFFD-3FA05E9F5C71}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{634778AA-76DC-494A-BFFD-3FA05E9F5C71}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7C5DF30-1D8A-4243-BB34-9B8193E8DE27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7C5DF30-1D8A-4243-BB34-9B8193E8DE27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7C5DF30-1D8A-4243-BB34-9B8193E8DE27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7C5DF30-1D8A-4243-BB34-9B8193E8DE27}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{184A0447-A89A-448F-A9E8-84E3CB4CA48B} = {A3DFB907-9A21-42A7-8C36-648C37ECE8CD}
+		{634778AA-76DC-494A-BFFD-3FA05E9F5C71} = {A3DFB907-9A21-42A7-8C36-648C37ECE8CD}
+		{F7C5DF30-1D8A-4243-BB34-9B8193E8DE27} = {38BA979D-DB4F-4EE1-A8FB-91C5A73A6C9C}
+	EndGlobalSection
+EndGlobal

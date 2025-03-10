@@ -14,5 +14,5 @@ public class JackTimeResult
 
     public string ResourceId { get; set; }
 
-    public string Way { get; set; }
+    public byte Way { get; set; }
 }
