@@ -1,7 +1,7 @@
 ﻿using Fanex.Data.Repository;
 
 namespace Settlement.Consumer.Criteria;
-internal class GetMatchDetailCriteria : NonQueryCommand
+public class GetMatchDetailCriteria : NonQueryCommand
 {
     public int MatchId { get; set; }
 

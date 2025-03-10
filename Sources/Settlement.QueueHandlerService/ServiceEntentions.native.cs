@@ -26,6 +26,7 @@ public static class ServiceExtensions
         services.AddSingleton<SendMailService, SendMailServiceImp>();
         services.AddSingleton<IHandleResponseService, HandleResponseService>();
         services.AddSingleton<IRemotingRefService, RemotingRefService>();
+        services.AddSingleton<ISoccerJackTimeService, SoccerJackTimeService>();
     }
 
 }

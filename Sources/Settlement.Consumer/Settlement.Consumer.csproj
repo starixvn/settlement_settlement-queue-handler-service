@@ -12,7 +12,7 @@
     <PackageReference Include="Fanex.Logging" Version="2.0.2" />
     <PackageReference Include="Fanex.MailDeliver.MailClient" Version="2.1.0" />
     <PackageReference Include="Fanex.RemotingRef" Version="1.5.5.1" />
-    <PackageReference Include="Fanex.Settlement.MessageBridge" Version="1.0.4-alpha01" />
+    <PackageReference Include="Fanex.Settlement.MessageBridge" Version="1.0.4-alpha02" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.2" />
     <PackageReference Include="MassTransit" Version="8.3.6" />
