@@ -36,10 +36,6 @@ public class SoccerJackTimeService(
 
     public async Task UpdateTicket(SoccerResult result)
     {
-        if (result.Action.Contains("CAL"))
-        {
-            return;
-        }
         var criteria = mapper.Map<SoccerResult, SoccerGetTicketInfoCriteria>(result);
         var getTicketInfoTasks = options.Value.SiteDbServer.Select(s => GetTicketInfo(s, criteria));
         var responseTickets = await Task.WhenAll(getTicketInfoTasks.ToArray());
@@ -59,17 +55,13 @@ public class SoccerJackTimeService(
 
     private bool filterValidTicketInfos(VoidBetInfo voidBetInfo)
     {
-        var element = XElement.Parse(voidBetInfo.ExtraInfo);
+        var xmlDoc = XDocument.Parse($"<root>{voidBetInfo.ExtraInfo}</root>");
 
-        var jtseqidAttr = element.Attribute("jtseqid");
+        var jtseqidAttr = xmlDoc.Descendants()
+            .Select(e => e.Attribute("jtseqid"))
+            .FirstOrDefault(attr => attr != null);
 
-        if (jtseqidAttr == null)
-        {
-            return false;
-        }
-        var jtseqidValue = jtseqidAttr.Value.Trim();
-
-        return !string.IsNullOrEmpty(jtseqidValue);
+        return jtseqidAttr != null && !string.IsNullOrEmpty(jtseqidAttr.Value);
     }
 
     private async Task<IEnumerable<VoidBetInfo>> GetTicketInfo(string server, SoccerGetTicketInfoCriteria criteria)

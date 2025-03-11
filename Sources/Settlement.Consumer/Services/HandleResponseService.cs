@@ -16,8 +16,6 @@ public interface IHandleResponseService
 
 public class HandleResponseService(SendMailService sendMailService, IMapper mapper, IRemotingRefService remotingRefService, IDynamicRepository repository) : IHandleResponseService
 {
-
-
     public async Task HandleVoidBetResponse(HttpResponseMessage response, VoidBetApiModel model, int matchId)
     {
         var matchInfo = await GetMatchInfo(matchId);

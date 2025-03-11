@@ -42,12 +42,14 @@ public class SendMailServiceImp(
 
     private string? MailTo(int sportType)
     {
-        return sportType switch
+        var emailGroup = sportType switch
         {
-            SportType.Soccer => configuration.GetSection("EmailGroups:Soccer").Value,
-            SportType.BasketBall => configuration.GetSection("EmailGroups:VoidBet").Value,
-            _ => configuration.GetSection("EmailGroups:OtherSport").Value
+            SportType.Soccer => "VoidBet",
+            SportType.BasketBall => "VoidBet",
+            _ => "OtherSport"
         };
+
+        return configuration.GetSection($"EmailGroups:{emailGroup}").Value;
     }
 
     private string MailBody(NotificationModel model, bool isVoidBetEmail)

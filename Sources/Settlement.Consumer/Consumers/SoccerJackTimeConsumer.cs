@@ -22,7 +22,8 @@ public class SoccerJackTimeConsumer(
         }
         catch (Exception e)
         {
-            await Fanex.Logging.LogService.ErrorAsync($"Soccer JackTime Update Market Failed: {e.Message}");
+            await Fanex.Logging.LogService.ErrorAsync($"Soccer JackTime Consumer Failed: MatchId({context.Message.MatchId}) Action({context.Message.Action}" +
+                                                      $" - {e.Message}");
         }
     }
 }

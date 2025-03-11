@@ -82,7 +82,7 @@ public class RequestService(
         {
             var voidBetInfos = request.VoidBetInfos.Where(m => m.Action == action);
             var actionApi = action.Contains("UNDO", StringComparison.OrdinalIgnoreCase) ? CashOutAction.UndoVoidBet : CashOutAction.VoidBet;
-            var apiUri = $"{options.Value.ThirdPartyUri.JackTimeTicket}{actionApi}";
+            var apiUri = $"{options.Value.ThirdPartyUri.JackTimeTicket}/{actionApi}";
             var voidBetApiModel = new VoidBetApiModel
             {
                 VoidBetInfos = voidBetInfos

@@ -17,6 +17,7 @@ public static class ServiceExtensions
 
         var mapper = mapperConfig.CreateMapper();
         services.AddSingleton(mapper);
+
     }
 
     public static void AddCoreServices(this IServiceCollection services)

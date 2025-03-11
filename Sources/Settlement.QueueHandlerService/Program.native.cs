@@ -1,5 +1,7 @@
 using Fanex.Data;
 using Fanex.Logging.Sentry.RavenClient;
+using Fanex.MailDeliver.MailClient;
+using Fanex.RemotingRef;
 using Settlement.Consumer.Models;
 using Settlement.QueueHandlerService;
 
@@ -14,6 +16,12 @@ services.AddHttpClient();
 services.AddCoreServices();
 services.AddFanexLogSentry(builder.Configuration);
 services.AddAutoMapper();
+RefDataTypeContainer
+    .ConnectTo(new Uri(builder.Configuration.GetSection("Fanex.RemotingRef.Service.Url").Value))
+    .FromApplication("Settlement");
+
+AppSettings.AppMailId = builder.Configuration.GetSection("MailServer:Id").Value;
+AppSettings.AppMailAddress = builder.Configuration.GetSection("MailServer:Address").Value;
 
 
 
