@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
+using Fanex.Caching;
 using Fanex.Data.Repository;
 using Fanex.Settlement.MessageBridge.JackTime;
-using Microsoft.Extensions.Options;
+using Fanex.Settlement.MessageBridge.JackTime.Constants;
 using Newtonsoft.Json;
 using Settlement.Consumer.Criteria;
-using Settlement.Consumer.Models;
 using Settlement.Consumer.Models.SoccerJackTime;
 using System.Xml.Linq;
 
@@ -20,7 +20,7 @@ public class SoccerJackTimeService(
     IDynamicRepository repository,
     IMapper mapper,
     IRequestService requestService,
-    IOptions<AppSettingsKey> options) : ISoccerJackTimeService
+    ICacheService cacheService) : ISoccerJackTimeService
 {
     public async Task UpdateResultMarket(SoccerResult result, IList<Market> marketOffered)
     {
@@ -36,10 +36,13 @@ public class SoccerJackTimeService(
 
     public async Task UpdateTicket(SoccerResult result)
     {
-        var criteria = mapper.Map<SoccerResult, SoccerGetTicketInfoCriteria>(result);
-        var getTicketInfoTasks = options.Value.SiteDbServer.Select(s => GetTicketInfo(s, criteria));
-        var responseTickets = await Task.WhenAll(getTicketInfoTasks.ToArray());
-        var ticketInfos = responseTickets.SelectMany(t => t).ToList();
+        var (found, ticketInfos) = await cacheService.TryGetAsync<IEnumerable<VoidBetInfo>>($"{RedisJTKey.SoccerJT}-{result.MatchId}-{result.Action}");
+
+        if (!found)
+        {
+            return;
+        }
+
         var validTicketInfos = ticketInfos.Where(filterValidTicketInfos).ToList();
 
         if (validTicketInfos.Any())
@@ -51,6 +54,7 @@ public class SoccerJackTimeService(
                 Action = result.Action
             }, result.MatchId);
         }
+        await cacheService.RemoveAsync($"{RedisJTKey.SoccerJT}-{result.MatchId}-{result.Action}");
     }
 
     private bool filterValidTicketInfos(VoidBetInfo voidBetInfo)
@@ -62,12 +66,5 @@ public class SoccerJackTimeService(
             .FirstOrDefault(attr => attr != null);
 
         return jtseqidAttr != null && !string.IsNullOrEmpty(jtseqidAttr.Value);
-    }
-
-    private async Task<IEnumerable<VoidBetInfo>> GetTicketInfo(string server, SoccerGetTicketInfoCriteria criteria)
-    {
-        criteria.DbServer = server;
-
-        return await repository.FetchAsync<VoidBetInfo>(criteria);
     }
 }

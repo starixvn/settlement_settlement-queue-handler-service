@@ -10,6 +10,5 @@ public class ConsumeMapperProfile : Profile
     {
         CreateMap<SoccerResult, CashOutSelCriteria>();
         CreateMap<MatchDetail, NotificationModel>();
-        CreateMap<SoccerResult, SoccerGetTicketInfoCriteria>();
     }
 }

@@ -12,11 +12,12 @@
     <PackageReference Include="Fanex.Logging" Version="2.0.2" />
     <PackageReference Include="Fanex.MailDeliver.MailClient" Version="2.1.0" />
     <PackageReference Include="Fanex.RemotingRef" Version="1.5.5.1" />
-    <PackageReference Include="Fanex.Settlement.MessageBridge" Version="1.0.4-alpha03" />
+    <PackageReference Include="Fanex.Settlement.MessageBridge" Version="1.0.4-alpha05" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.2" />
     <PackageReference Include="MassTransit" Version="8.3.6" />
     <PackageReference Include="RazorEngineCore" Version="2024.4.1" />
+    <PackageReference Include="Fanex.Caching.Redis" Version="2.2.8" />
   </ItemGroup>
 
 </Project>

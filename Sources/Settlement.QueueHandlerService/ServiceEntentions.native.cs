@@ -29,5 +29,4 @@ public static class ServiceExtensions
         services.AddSingleton<IRemotingRefService, RemotingRefService>();
         services.AddSingleton<ISoccerJackTimeService, SoccerJackTimeService>();
     }
-
 }

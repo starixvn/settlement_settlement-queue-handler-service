@@ -4,12 +4,4 @@
     <Setting Key="NAP_Settlement_1_CashoutSel" SpName="NAP_Settlement_1_CashoutSel" DbName="DBTXN.bodb02.wsv_nap" />
     <Setting Key="NAP_Set_MatchSelInfo" SpName="NAP_Set_MatchSelInfo" DbName="DBPRO.bodb02.wsv_nap" />
   </Function>
-
-  <Function Name="TicketInfoSel">
-    <Setting Key="NAP_Settlement_1_CashoutTicketSel_DBTXN" SpName="NAP_Settlement_1_CashoutTicketSel" DbName="DBTXN.bodb02.wsv_nap" />
-    <Setting Key="NAP_Settlement_1_CashoutTicketSel_DBSITE01" SpName="NAP_Settlement_1_CashoutTicketSel" DbName="DBSITE01.bodb02.wsv_nap" />
-    <Setting Key="NAP_Settlement_1_CashoutTicketSel_DBSITE02" SpName="NAP_Settlement_1_CashoutTicketSel" DbName="DBSITE02.bodb02.wsv_nap" />
-    <Setting Key="NAP_Settlement_1_CashoutTicketSel_DBSITE03" SpName="NAP_Settlement_1_CashoutTicketSel" DbName="DBSITE03.bodb02.wsv_nap" />
-  </Function>
-  
 </Functions>
