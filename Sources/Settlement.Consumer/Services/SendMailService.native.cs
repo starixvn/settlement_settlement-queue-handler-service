@@ -6,8 +6,8 @@ using Settlement.Consumer.Constants;
 using Settlement.Consumer.Models;
 using System.Collections.Concurrent;
 
-
 namespace Settlement.Consumer.Services;
+
 public interface SendMailService
 {
     void SendMail(NotificationModel item, bool isVoidBetEmail);
@@ -62,7 +62,7 @@ public class SendMailServiceImp(
         return RenderTemplate(template, model);
     }
 
-    private string RenderTemplate(string template, NotificationModel model)
+    private static string RenderTemplate(string template, NotificationModel model)
     {
         var hashCode = template.GetHashCode();
         var compiledTemplate = CompiledTemplateCache.GetOrAdd(hashCode, _ =>

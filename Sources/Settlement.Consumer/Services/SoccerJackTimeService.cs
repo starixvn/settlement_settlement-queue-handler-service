@@ -9,6 +9,7 @@ using Settlement.Consumer.Models.SoccerJackTime;
 using System.Xml.Linq;
 
 namespace Settlement.Consumer.Services;
+
 public interface ISoccerJackTimeService
 {
     Task UpdateResultMarket(SoccerResult result, IList<Market> marketOffered);
@@ -43,7 +44,7 @@ public class SoccerJackTimeService(
             return;
         }
 
-        var validTicketInfos = ticketInfos.Where(filterValidTicketInfos).ToList();
+        var validTicketInfos = ticketInfos.Where(FilterValidTicketInfos).ToList();
 
         if (validTicketInfos.Any())
         {
@@ -57,7 +58,7 @@ public class SoccerJackTimeService(
         await cacheService.RemoveAsync($"{RedisJTKey.SoccerJT}-{result.MatchId}-{result.Action}");
     }
 
-    private bool filterValidTicketInfos(VoidBetInfo voidBetInfo)
+    private static bool FilterValidTicketInfos(VoidBetInfo voidBetInfo)
     {
         var xmlDoc = XDocument.Parse($"<root>{voidBetInfo.ExtraInfo}</root>");
 
