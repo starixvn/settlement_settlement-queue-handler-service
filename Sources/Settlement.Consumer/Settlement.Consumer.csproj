@@ -7,8 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="14.0.0" />
-    <PackageReference Include="Fanex.Data.ProxyClient" Version="1.0.3.3" />
+    <PackageReference Include="AutoMapper" Version="14.0.0" />    <PackageReference Include="Fanex.Data" Version="4.3.3" />    <PackageReference Include="Fanex.Data.Repository" Version="4.3.3" />    <PackageReference Include="Fanex.Data.SqlServer" Version="4.3.3" />
+
+    
     <PackageReference Include="Fanex.Logging" Version="2.0.2" />
     <PackageReference Include="Fanex.MailDeliver.MailClient" Version="2.1.0" />
     <PackageReference Include="Fanex.RemotingRef" Version="1.5.5.1" />

@@ -1,12 +1,9 @@
-﻿using Fanex.Data;
-
-namespace Settlement.Consumer.Models.SoccerJackTime;
+﻿namespace Settlement.Consumer.Models.SoccerJackTime;
 public class JackTimeResult
 {
     public int Bettype { get; set; }
 
-    [SpParam(SqlParamName = "hdp")]
-    public decimal Handicap { get; set; }
+    public decimal Hdp { get; set; }
 
     public string BetTeam { get; set; }
 

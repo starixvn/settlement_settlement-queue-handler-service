@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Fanex.Data.Repository;
 using Fanex.RemotingRef;
 using Settlement.Consumer;
 using Settlement.Consumer.Services;
@@ -28,5 +29,7 @@ public static class ServiceExtensions
         services.AddSingleton<IHandleResponseService, HandleResponseService>();
         services.AddSingleton<IRemotingRefService, RemotingRefService>();
         services.AddSingleton<ISoccerJackTimeService, SoccerJackTimeService>();
+
+        services.AddSingleton<IDynamicRepository, DynamicRepository>();
     }
 }

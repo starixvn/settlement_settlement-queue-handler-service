@@ -38,7 +38,7 @@ public class SoccerJackTimeService(
     {
         var (found, ticketInfos) = await cacheService.TryGetAsync<IEnumerable<VoidBetInfo>>($"{RedisJTKey.SoccerJT}-{result.MatchId}-{result.Action}");
 
-        if (!found)
+        if (!found || ticketInfos == null)
         {
             return;
         }

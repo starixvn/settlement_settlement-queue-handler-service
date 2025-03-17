@@ -1,102 +1,106 @@
 ﻿using AutoMapper;
+using Fanex.Caching;
 using Fanex.Data.Repository;
 using Fanex.Settlement.MessageBridge.JackTime;
-using Microsoft.Extensions.Options;
 using NSubstitute;
 using Settlement.Consumer.Criteria;
-using Settlement.Consumer.Models;
 using Settlement.Consumer.Models.SoccerJackTime;
 using Settlement.Consumer.Services;
 
-namespace Settlement.Consumer.UnitTests.Services
+namespace Settlement.Consumer.Tests.Services
 {
     public class SoccerJackTimeServiceTests
     {
-        private readonly IDynamicRepository _mockRepository;
-        private readonly IMapper _mockMapper;
-        private readonly IRequestService _mockRequestService;
-        private readonly IOptions<AppSettingsKey> _mockOptions;
+        private readonly IDynamicRepository _repositoryMock;
+        private readonly IMapper _mapperMock;
+        private readonly IRequestService _requestServiceMock;
+        private readonly ICacheService _cacheServiceMock;
         private readonly SoccerJackTimeService _service;
 
         public SoccerJackTimeServiceTests()
         {
-            _mockRepository = Substitute.For<IDynamicRepository>();
-            _mockMapper = Substitute.For<IMapper>();
-            _mockRequestService = Substitute.For<IRequestService>();
-            _mockOptions = Substitute.For<IOptions<AppSettingsKey>>();
-            _mockOptions.Value.Returns(new AppSettingsKey { SiteDbServer = new List<string> { "Server1", "Server2" } });
-
-            _service = new SoccerJackTimeService(_mockRepository, _mockMapper, _mockRequestService, _mockOptions);
+            _repositoryMock = Substitute.For<IDynamicRepository>();
+            _mapperMock = Substitute.For<IMapper>();
+            _requestServiceMock = Substitute.For<IRequestService>();
+            _cacheServiceMock = Substitute.For<ICacheService>();
+            _service = new SoccerJackTimeService(
+                _repositoryMock,
+                _mapperMock,
+                _requestServiceMock,
+                _cacheServiceMock);
         }
 
         [Fact]
-        public async Task UpdateResultMarket_ShouldCallUpdateMarkets()
+        public async Task UpdateResultMarket_ShouldCallUpdateMarkets_WhenResultsAreFetched()
         {
             // Arrange
-            var result = new SoccerResult();
-            var marketOffered = new List<Market> { new Market() };
+            var result = new SoccerResult { MatchId = 1 };
+            var marketOffered = new List<Market>();
             var criteria = new CashOutSelCriteria();
-            var jackTimeResults = new List<JackTimeResult> { new JackTimeResult() };
-            var requestModel = new JTResultMarketRequestModel();
+            var jackTimeResults = new List<JackTimeResult>();
 
-            _mockMapper.Map<SoccerResult, CashOutSelCriteria>(result).Returns(criteria);
-            _mockRepository.FetchAsync<JackTimeResult>(criteria).Returns(Task.FromResult(jackTimeResults.AsEnumerable()));
-            _mockRequestService.CreateSoccerJTRequest(marketOffered, jackTimeResults).Returns(requestModel);
+            _mapperMock.Map<SoccerResult, CashOutSelCriteria>(result).Returns(criteria);
+            _repositoryMock.FetchAsync<JackTimeResult>(criteria).Returns(Task.FromResult((IEnumerable<JackTimeResult>)jackTimeResults));
+            _requestServiceMock.CreateSoccerJTRequest(marketOffered, jackTimeResults).Returns(new JTResultMarketRequestModel());
 
             // Act
             await _service.UpdateResultMarket(result, marketOffered);
 
             // Assert
-            await _mockRequestService.Received(1).UpdateMarkets(requestModel, marketOffered, result.MatchId);
+            await _requestServiceMock.Received(1).UpdateMarkets(Arg.Any<JTResultMarketRequestModel>(), marketOffered, result.MatchId);
         }
 
         [Fact]
-        public async Task UpdateTicket_ShouldNotCallUpdateVoidBetTicket_WhenActionContainsCAL()
+        public async Task UpdateTicket_ShouldNotCallUpdateVoidBetTicket_WhenCacheNotFound()
         {
             // Arrange
-            var result = new SoccerResult { Action = "CAL" };
+            var result = new SoccerResult { MatchId = 1, Action = "Action" };
+            _cacheServiceMock.TryGetAsync<IEnumerable<VoidBetInfo>>(Arg.Any<string>()).Returns(Task.FromResult((false, null as IEnumerable<VoidBetInfo>)));
 
             // Act
             await _service.UpdateTicket(result);
 
             // Assert
-            await _mockRequestService.DidNotReceive().UpdateVoidBetTicket(Arg.Any<VoidBetRequest>(), Arg.Any<int>());
+            await _requestServiceMock.DidNotReceive().UpdateVoidBetTicket(Arg.Any<VoidBetRequest>(), result.MatchId);
         }
 
         [Fact]
-        public async Task UpdateTicket_ShouldCallUpdateVoidBetTicket_WhenTicketsExist()
+        public async Task UpdateTicket_ShouldCallUpdateVoidBetTicket_WhenValidTicketInfosFound()
         {
             // Arrange
-            var result = new SoccerResult { Action = "ACTION", MatchId = 1 };
-            var criteria = new SoccerGetTicketInfoCriteria();
-            var voidBetInfos = new List<VoidBetInfo> { new VoidBetInfo { ExtraInfo = "<root jtseqid='123'></root>" } };
+            var result = new SoccerResult { MatchId = 1, Action = "Action" };
+            var ticketInfos = new List<VoidBetInfo>
+            {
+                new VoidBetInfo { ExtraInfo = "<s25 jtseqid='123' />" }
+            };
 
-            _mockMapper.Map<SoccerResult, SoccerGetTicketInfoCriteria>(result).Returns(criteria);
-            _mockRepository.FetchAsync<VoidBetInfo>(Arg.Any<SoccerGetTicketInfoCriteria>()).Returns(Task.FromResult(voidBetInfos.AsEnumerable()));
+            _cacheServiceMock.TryGetAsync<IEnumerable<VoidBetInfo>>(Arg.Any<string>()).Returns((true, ticketInfos));
 
             // Act
             await _service.UpdateTicket(result);
 
             // Assert
-            await _mockRequestService.Received(1).UpdateVoidBetTicket(Arg.Any<VoidBetRequest>(), result.MatchId);
+            await _requestServiceMock.Received(1).UpdateVoidBetTicket(Arg.Any<VoidBetRequest>(), result.MatchId);
         }
 
+
         [Fact]
-        public async Task UpdateTicket_ShouldNotCallUpdateVoidBetTicket_WhenNoTicketsExist()
+        public async Task FilterValidTicketInfos_ShouldReturnFalse_WhenJtseqidIsInvalid()
         {
             // Arrange
-            var result = new SoccerResult { Action = "ACTION", MatchId = 1 };
-            var criteria = new SoccerGetTicketInfoCriteria();
-            var voidBetInfos = new List<VoidBetInfo> { new VoidBetInfo { ExtraInfo = "<root></root>" } };
+            var result = new SoccerResult { MatchId = 1, Action = "Action" };
+            var ticketInfos = new List<VoidBetInfo>
+            {
+                new VoidBetInfo { ExtraInfo = "<s25 s5='123' />" }
+            };
 
-            _mockMapper.Map<SoccerResult, SoccerGetTicketInfoCriteria>(result).Returns(criteria);
-            _mockRepository.FetchAsync<VoidBetInfo>(Arg.Any<SoccerGetTicketInfoCriteria>()).Returns(Task.FromResult(voidBetInfos.AsEnumerable()));
+            _cacheServiceMock.TryGetAsync<IEnumerable<VoidBetInfo>>(Arg.Any<string>()).Returns((true, ticketInfos));
 
             // Act
             await _service.UpdateTicket(result);
 
             // Assert
-            await _mockRequestService.DidNotReceive().UpdateVoidBetTicket(Arg.Any<VoidBetRequest>(), result.MatchId);
+            await _requestServiceMock.DidNotReceive().UpdateVoidBetTicket(Arg.Any<VoidBetRequest>(), result.MatchId);
         }
     }
 }

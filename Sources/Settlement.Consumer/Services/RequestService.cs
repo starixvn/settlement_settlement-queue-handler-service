@@ -1,6 +1,7 @@
 ﻿using Fanex.Settlement.MessageBridge.JackTime;
 using Fanex.Settlement.MessageBridge.JackTime.Constants;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Settlement.Consumer.Models;
 using Settlement.Consumer.Models.SoccerJackTime;
 
@@ -47,26 +48,31 @@ public class RequestService(
         {
             Header = new HeaderRequest
             {
-                Transaction_Id = new TransactionId()
+                Transaction_Id = new TransactionId
                 {
                     Id = Guid.NewGuid().ToString()
                 }
             },
-            Request = new MarketModel()
+            Request = new MarketModel
             {
                 Markets = markets.Select(m => new MarketData
                 {
                     Market = m,
-                    WayScores = GenerateOutCome(result, m.BetType)
-                })
+                    WayScores = GenerateOutCome(result, m.BetType, m.GoalLine)
+                }).Where(m => m.WayScores.Any())
             }
         };
     }
 
 
-    private static IEnumerable<WayScore> GenerateOutCome(IEnumerable<JackTimeResult> result, int betType)
+    private static IEnumerable<WayScore> GenerateOutCome(IEnumerable<JackTimeResult> result, int betType, decimal goalLine)
     {
-        var groupBetType = result.Where(r => r.Bettype == betType);
+        var groupBetType = result.Where(r => r.Bettype == betType && goalLine == r.Hdp).ToList();
+
+        if (groupBetType.IsNullOrEmpty())
+        {
+            return [];
+        }
 
         return groupBetType.Select(r => new WayScore
         {
