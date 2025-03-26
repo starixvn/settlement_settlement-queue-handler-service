@@ -4,6 +4,7 @@ using Settlement.Consumer.Models.SoccerJackTime;
 using System.Text.Json.Serialization;
 
 namespace Settlement.Consumer.Models;
+
 public class NotificationModel
 {
     private const string LanguageCode = "en";

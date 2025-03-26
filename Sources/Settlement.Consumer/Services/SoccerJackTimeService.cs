@@ -25,37 +25,65 @@ public class SoccerJackTimeService(
 {
     public async Task UpdateResultMarket(SoccerResult result, IList<Market> marketOffered)
     {
+        var criteria = MapToCriteria(result, marketOffered);
+        var results = await repository.FetchAsync<JackTimeResult>(criteria);
+        await UpdateMarkets(result.MatchId, marketOffered, results);
+    }
+
+    private CashOutSelCriteria MapToCriteria(SoccerResult result, IList<Market> marketOffered)
+    {
         var criteria = mapper.Map<SoccerResult, CashOutSelCriteria>(result);
         criteria.Markets = JsonConvert.SerializeObject(marketOffered);
+        return criteria;
+    }
 
-        var results = await repository.FetchAsync<JackTimeResult>(criteria);
-
+    private async Task UpdateMarkets(int matchId, IList<Market> marketOffered, IEnumerable<JackTimeResult> results)
+    {
         var soccerJackTimeRequest = requestService.CreateSoccerJTRequest(marketOffered, results);
-
-        await requestService.UpdateMarkets(soccerJackTimeRequest, marketOffered, result.MatchId);
+        await requestService.UpdateMarkets(soccerJackTimeRequest, marketOffered, matchId);
     }
 
     public async Task UpdateTicket(SoccerResult result)
     {
-        var (found, ticketInfos) = await cacheService.TryGetAsync<IEnumerable<VoidBetInfo>>($"{RedisJTKey.SoccerJT}-{result.MatchId}-{result.Action}");
-
-        if (!found || ticketInfos == null)
+        var cacheKey = GetCacheKey(result);
+        var ticketInfos = await GetTicketInfos(cacheKey);
+        if (!ticketInfos.Any())
         {
             return;
         }
 
-        var validTicketInfos = ticketInfos.Where(FilterValidTicketInfos).ToList();
+        await ProcessValidTickets(result, ticketInfos);
+        await CleanupCache(cacheKey);
+    }
 
-        if (validTicketInfos.Any())
+    private static string GetCacheKey(SoccerResult result) =>
+        $"{RedisJTKey.SoccerJT}-{result.MatchId}-{result.Action}";
+
+    private async Task CleanupCache(string cacheKey)
+    {
+        await cacheService.RemoveAsync(cacheKey);
+    }
+
+    private async Task ProcessValidTickets(SoccerResult result, IEnumerable<VoidBetInfo> ticketInfos)
+    {
+        var validTicketInfos = ticketInfos.Where(FilterValidTicketInfos).ToList();
+        if (validTicketInfos.Count == 0)
         {
-            await requestService.UpdateVoidBetTicket(new VoidBetRequest
-            {
-                VoidBetInfos = validTicketInfos,
-                MatchId = result.MatchId,
-                Action = result.Action
-            }, result.MatchId);
+            return;
         }
-        await cacheService.RemoveAsync($"{RedisJTKey.SoccerJT}-{result.MatchId}-{result.Action}");
+
+        await requestService.UpdateVoidBetTicket(new VoidBetRequest
+        {
+            VoidBetInfos = validTicketInfos,
+            MatchId = result.MatchId,
+            Action = result.Action
+        }, result.MatchId);
+    }
+
+    private async Task<IEnumerable<VoidBetInfo>> GetTicketInfos(string cacheKey)
+    {
+        var (found, ticketInfos) = await cacheService.TryGetAsync<IEnumerable<VoidBetInfo>>(cacheKey);
+        return found && ticketInfos != null ? ticketInfos : [];
     }
 
     private static bool FilterValidTicketInfos(VoidBetInfo voidBetInfo)

@@ -18,20 +18,22 @@ public class HandleResponseService(SendMailService sendMailService, IMapper mapp
 {
     public async Task HandleVoidBetResponse(HttpResponseMessage response, VoidBetApiModel model, int matchId)
     {
-        var matchInfo = await GetMatchInfo(matchId);
-        if (!response.IsSuccessStatusCode)
+         await HandleResponse(response, matchId, mailModel =>
         {
-            var mailModel = mapper.Map<MatchDetail, NotificationModel>(matchInfo);
-            mailModel.RefDataService = remotingRefService;
-            mailModel.Message = await response.Content.ReadAsStringAsync();
-            mailModel.Action = $"CO-{mailModel.Action}-JackTime";
-            mailModel.StartTime = DateTimeOffset.Now.DateTime;
             mailModel.VoidBetInfos = model.VoidBetInfos;
             sendMailService.SendMail(mailModel, true);
-        }
+        });
     }
 
     public async Task HandleUpdateResultResponse(HttpResponseMessage response, IEnumerable<Market> markets, int matchId)
+    {
+        await HandleResponse(response, matchId, mailModel =>
+        {
+            mailModel.Markets = markets;
+            sendMailService.SendMail(mailModel, false);
+        });
+    }
+    private async Task HandleResponse(HttpResponseMessage response, int matchId, Action<NotificationModel> configureMailModel)
     {
         var matchInfo = await GetMatchInfo(matchId);
         if (!response.IsSuccessStatusCode)
@@ -41,11 +43,9 @@ public class HandleResponseService(SendMailService sendMailService, IMapper mapp
             mailModel.Message = await response.Content.ReadAsStringAsync();
             mailModel.Action = $"CO-{mailModel.Action}-JackTime";
             mailModel.StartTime = DateTimeOffset.Now.DateTime;
-            mailModel.Markets = markets;
-            sendMailService.SendMail(mailModel, false);
+            configureMailModel(mailModel);
         }
     }
-
     private async Task<MatchDetail> GetMatchInfo(int matchId)
     {
         var criteria = new GetMatchDetailCriteria

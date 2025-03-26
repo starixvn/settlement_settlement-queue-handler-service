@@ -3,6 +3,7 @@ using MassTransit;
 using Settlement.Consumer.Services;
 
 namespace Settlement.Consumer.Consumers;
+
 public class SoccerJackTimeConsumer(
     IRequestService requestService,
     ISoccerJackTimeService soccerJackTimeService) : IConsumer<SoccerResult>
@@ -12,7 +13,7 @@ public class SoccerJackTimeConsumer(
         try
         {
             var marketOffered = await requestService.GetMarkets(context.Message.MatchId);
-            if (!marketOffered.Any())
+            if (marketOffered.Count == 0)
             {
                 return;
             }
