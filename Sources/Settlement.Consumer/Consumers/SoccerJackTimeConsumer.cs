@@ -1,5 +1,7 @@
-﻿using Fanex.Settlement.MessageBridge.JackTime;
+﻿using Fanex.Logging;
+using Fanex.Settlement.MessageBridge.JackTime;
 using MassTransit;
+using Newtonsoft.Json;
 using Settlement.Consumer.Services;
 
 namespace Settlement.Consumer.Consumers;
@@ -13,12 +15,12 @@ public class SoccerJackTimeConsumer(
         try
         {
             var marketOffered = await requestService.GetMarkets(context.Message.MatchId);
+            await LogService.InfoAsync($"Match {context.Message.MatchId} - Markets: " + JsonConvert.SerializeObject(marketOffered));
             if (marketOffered.Count == 0)
             {
                 return;
             }
 
-            await soccerJackTimeService.UpdateTicket(context.Message);
             await soccerJackTimeService.UpdateResultMarket(context.Message, marketOffered);
         }
         catch (Exception e)

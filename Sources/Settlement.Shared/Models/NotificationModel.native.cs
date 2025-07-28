@@ -1,9 +1,8 @@
 ﻿using Fanex.RemotingRef;
 using Fanex.Settlement.MessageBridge.JackTime;
-using Settlement.Consumer.Models.SoccerJackTime;
 using System.Text.Json.Serialization;
 
-namespace Settlement.Consumer.Models;
+namespace Settlement.Shared.Models;
 
 public class NotificationModel
 {

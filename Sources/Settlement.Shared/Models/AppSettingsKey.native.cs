@@ -1,8 +1,12 @@
-﻿namespace Settlement.Consumer.Models;
+﻿namespace Settlement.Shared.Models;
 
 public class AppSettingsKey
 {
     public ThirdPartySettingKeys ThirdPartyUri { get; set; }
+
+    public string EnvironmentName { get; set; }
+
+    public List<string> SiteDbServers { get; set; }
 }
 
 public class ThirdPartySettingKeys

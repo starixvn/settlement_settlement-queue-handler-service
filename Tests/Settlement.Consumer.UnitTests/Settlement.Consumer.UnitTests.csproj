@@ -17,10 +17,15 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Sources\Settlement.Consumer\Settlement.Consumer.csproj" />
+    <ProjectReference Include="..\..\Sources\Settlement.JackTime\Settlement.JackTime.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>

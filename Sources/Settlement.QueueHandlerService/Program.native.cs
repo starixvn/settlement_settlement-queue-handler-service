@@ -3,8 +3,12 @@ using Fanex.Data.SqlServer;
 using Fanex.Logging.Sentry.RavenClient;
 using Fanex.MailDeliver.MailClient;
 using Fanex.RemotingRef;
-using Settlement.Consumer.Models;
+using ONEbook.UM.DependencyInjection;
+using Settlement.JackTime;
 using Settlement.QueueHandlerService;
+using Settlement.QueueHandlerService.Services;
+using Settlement.Shared;
+using Settlement.Shared.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -16,9 +20,14 @@ services.AddFanexSql(builder.Configuration);
 services.Configure<AppSettingsKey>(builder.Configuration);
 services.AddHttpClient();
 services.AddCoreServices();
+services.AddJackTimeServices();
+services.AddSharedServices();
 services.AddFanexLogSentry(builder.Configuration);
 services.AddAutoMapper();
 services.AddRedisCache(configuration.GetSection("fanex.caching.redis"));
+services.AddHostedService<AutoJackTimeService>();
+services.AddOneBookUmForService(builder.Configuration);
+services.AddFanexLogSentry(configuration);
 RefDataTypeContainer
     .ConnectTo(new Uri(configuration.GetSection("Fanex.RemotingRef.Service.Url").Value))
     .FromApplication("Settlement");

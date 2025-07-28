@@ -1,12 +1,10 @@
 ﻿using AutoMapper;
 using Fanex.Data.Repository;
 using Fanex.RemotingRef;
-using Fanex.Settlement.MessageBridge.JackTime;
 using Settlement.Consumer.Criteria;
-using Settlement.Consumer.Models;
-using Settlement.Consumer.Models.SoccerJackTime;
+using Settlement.Shared.Models;
 
-namespace Settlement.Consumer.Services;
+namespace Settlement.Shared.Services;
 public interface IHandleResponseService
 {
     public Task HandleVoidBetResponse(HttpResponseMessage response, VoidBetApiModel model, int matchId);
@@ -18,11 +16,11 @@ public class HandleResponseService(SendMailService sendMailService, IMapper mapp
 {
     public async Task HandleVoidBetResponse(HttpResponseMessage response, VoidBetApiModel model, int matchId)
     {
-         await HandleResponse(response, matchId, mailModel =>
-        {
-            mailModel.VoidBetInfos = model.VoidBetInfos;
-            sendMailService.SendMail(mailModel, true);
-        });
+        await HandleResponse(response, matchId, mailModel =>
+       {
+           mailModel.VoidBetInfos = model.VoidBetInfos;
+           sendMailService.SendMail(mailModel, true);
+       });
     }
 
     public async Task HandleUpdateResultResponse(HttpResponseMessage response, IEnumerable<Market> markets, int matchId)

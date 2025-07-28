@@ -1,4 +1,4 @@
-﻿namespace Settlement.Consumer.Models;
+﻿namespace Settlement.Shared.Models;
 public class MatchDetail
 {
     public int MatchId { get; set; }

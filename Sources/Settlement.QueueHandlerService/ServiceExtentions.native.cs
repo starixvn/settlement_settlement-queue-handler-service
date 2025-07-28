@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
-using Fanex.Data.Repository;
-using Fanex.RemotingRef;
 using Settlement.Consumer;
 using Settlement.Consumer.Services;
+using Settlement.Shared;
 
 namespace Settlement.QueueHandlerService;
 
@@ -14,6 +13,7 @@ public static class ServiceExtensions
         var mapperConfig = new MapperConfiguration(mc =>
         {
             mc.AddProfile(typeof(ConsumeMapperProfile));
+            mc.AddProfile(typeof(MapperProfile));
         });
 
         var mapper = mapperConfig.CreateMapper();
@@ -23,13 +23,7 @@ public static class ServiceExtensions
 
     public static void AddCoreServices(this IServiceCollection services)
     {
-        services.AddSingleton<IInvokeExternalAPI, InvokeExternalAPI>();
         services.AddSingleton<IRequestService, RequestService>();
-        services.AddSingleton<SendMailService, SendMailServiceImp>();
-        services.AddSingleton<IHandleResponseService, HandleResponseService>();
-        services.AddSingleton<IRemotingRefService, RemotingRefService>();
         services.AddSingleton<ISoccerJackTimeService, SoccerJackTimeService>();
-
-        services.AddSingleton<IDynamicRepository, DynamicRepository>();
     }
 }

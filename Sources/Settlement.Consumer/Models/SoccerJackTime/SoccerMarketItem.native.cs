@@ -1,4 +1,6 @@
-﻿namespace Settlement.Consumer.Models.SoccerJackTime;
+﻿using Settlement.Shared.Models;
+
+namespace Settlement.Consumer.Models.SoccerJackTime;
 public class SoccerMarketItem
 {
     public bool IsSuccess { get; set; }

@@ -1,7 +1,9 @@
 FROM hub.nexdev.net/base/dotnet/core/sdk:9.0-alpine AS builder
 WORKDIR /src
 
+COPY Sources/Settlement.Shared/*.csproj ./Sources/Settlement.Shared/
 COPY Sources/Settlement.Consumer/*.csproj ./Sources/Settlement.Consumer/
+COPY Sources/Settlement.JackTime/*.csproj ./Sources/Settlement.JackTime/
 COPY Sources/Settlement.QueueHandlerService/Settlement.QueueHandlerService.csproj ./Sources/Settlement.QueueHandlerService/
 
 RUN dotnet nuget add source https://nuget.nexdev.net/api/v2

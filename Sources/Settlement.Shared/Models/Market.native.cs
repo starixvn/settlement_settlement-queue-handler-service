@@ -1,4 +1,4 @@
-﻿namespace Settlement.Consumer.Models.SoccerJackTime;
+﻿namespace Settlement.Shared.Models;
 public class Market
 {
     public int MatchId { get; set; }

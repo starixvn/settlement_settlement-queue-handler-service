@@ -18,10 +18,13 @@
     <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.3.0" />
     <PackageReference Include="Fanex.Caching.Redis" Version="2.2.8" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="9.0.2" />
+    <PackageReference Include="ONEbook.UM" Version="3.2.4" />
+    <PackageReference Include="Fanex.Logging.Extensions.Database" Version="2.0.2.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Settlement.Consumer\Settlement.Consumer.csproj" />
+    <ProjectReference Include="..\Settlement.JackTime\Settlement.JackTime.csproj" />
   </ItemGroup>
 
   <ItemGroup>

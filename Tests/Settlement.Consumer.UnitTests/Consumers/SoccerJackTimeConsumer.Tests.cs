@@ -2,8 +2,8 @@
 using MassTransit;
 using NSubstitute;
 using Settlement.Consumer.Consumers;
-using Settlement.Consumer.Models.SoccerJackTime;
 using Settlement.Consumer.Services;
+using Settlement.Shared.Models;
 
 public class SoccerJackTimeConsumerTests
 {
@@ -31,7 +31,6 @@ public class SoccerJackTimeConsumerTests
         await _consumer.Consume(_context);
 
         // Assert
-        await _mockSoccerJackTimeService.DidNotReceive().UpdateTicket(Arg.Any<SoccerResult>());
         await _mockSoccerJackTimeService.DidNotReceive().UpdateResultMarket(Arg.Any<SoccerResult>(), Arg.Any<List<Market>>());
     }
 
@@ -46,7 +45,6 @@ public class SoccerJackTimeConsumerTests
         await _consumer.Consume(_context);
 
         // Assert
-        await _mockSoccerJackTimeService.Received(1).UpdateTicket(Arg.Any<SoccerResult>());
         await _mockSoccerJackTimeService.Received(1).UpdateResultMarket(Arg.Any<SoccerResult>(), markets);
     }
 }

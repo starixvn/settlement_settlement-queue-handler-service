@@ -1,9 +1,9 @@
-﻿using Fanex.Settlement.MessageBridge.JackTime;
-using Fanex.Settlement.MessageBridge.JackTime.Constants;
+﻿using Fanex.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Settlement.Consumer.Models;
 using Settlement.Consumer.Models.SoccerJackTime;
+using Settlement.Shared.Models;
+using Settlement.Shared.Services;
 
 namespace Settlement.Consumer.Services;
 public interface IRequestService
@@ -13,8 +13,6 @@ public interface IRequestService
     Task<List<Market>> GetMarkets(int matchId);
 
     Task UpdateMarkets(JTResultMarketRequestModel request, IEnumerable<Market> markets, int matchId);
-
-    Task UpdateVoidBetTicket(VoidBetRequest request, int matchId);
 }
 
 
@@ -35,7 +33,7 @@ public class RequestService(
 
     public async Task UpdateMarkets(JTResultMarketRequestModel request, IEnumerable<Market> markets, int matchId)
     {
-
+        await LogService.InfoAsync($"Request Update Result Match {matchId}: " + request);
         var response = await invokeExternalApi.PutAsync(request, options.Value.ThirdPartyUri.JackTimeResultMarkets);
 
         await handleResponseService.HandleUpdateResultResponse(response, markets, matchId);
@@ -79,24 +77,6 @@ public class RequestService(
             Id = r.Way,
             Outcome = r.OutCome
         });
-    }
-
-    public async Task UpdateVoidBetTicket(VoidBetRequest request, int matchId)
-    {
-        var actions = request.VoidBetInfos.GroupBy(m => m.Action).Select(m => m.Key);
-        foreach (var action in actions)
-        {
-            var voidBetInfos = request.VoidBetInfos.Where(m => m.Action == action);
-            var actionApi = action.Contains("UNDO", StringComparison.OrdinalIgnoreCase) ? CashOutAction.UndoVoidBet : CashOutAction.VoidBet;
-            var apiUri = $"{options.Value.ThirdPartyUri.JackTimeTicket}/{actionApi}";
-            var voidBetApiModel = new VoidBetApiModel
-            {
-                VoidBetInfos = voidBetInfos
-            };
-
-            var response = await invokeExternalApi.PostAsync(voidBetApiModel, apiUri);
-            await handleResponseService.HandleVoidBetResponse(response, voidBetApiModel, matchId);
-        }
     }
 }
 

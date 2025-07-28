@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using RazorEngineCore;
 using Settlement.Consumer.Constants;
-using Settlement.Consumer.Models;
+using Settlement.Shared.Models;
 using System.Collections.Concurrent;
 
-namespace Settlement.Consumer.Services;
+namespace Settlement.Shared.Services;
 
 public interface SendMailService
 {
