@@ -22,21 +22,22 @@ public static class MassTransitConfig
                     h.Password(configuration["RabbitMQ:Password"] ?? string.Empty);
                 });
 
-
-                foreach (var endpoint in endpoints)
+                if (endpoints != null)
                 {
-                    cfg.ReceiveEndpoint(endpoint, e =>
+                    foreach (var endpoint in endpoints)
                     {
-                        switch (endpoint)
+                        cfg.ReceiveEndpoint(endpoint, e =>
                         {
-                            case ConsumeType.SoccerJackTime:
-                                e.ConfigureConsumer<SoccerJackTimeConsumer>(ctx);
-                                break;
-                        }
-                    });
+                            switch (endpoint)
+                            {
+                                case ConsumeType.SoccerJackTime:
+                                    e.ConfigureConsumer<SoccerJackTimeConsumer>(ctx);
+                                    break;
+                            }
+                        });
+                    }
                 }
             });
         });
-
     }
 }

@@ -1,11 +1,13 @@
 ﻿using Fanex.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Settlement.Consumer.Constants;
 using Settlement.Consumer.Models.SoccerJackTime;
 using Settlement.Shared.Models;
 using Settlement.Shared.Services;
 
 namespace Settlement.Consumer.Services;
+
 public interface IRequestService
 {
     JTResultMarketRequestModel CreateSoccerJTRequest(IEnumerable<Market> markets, IEnumerable<JackTimeResult> result);
@@ -15,18 +17,16 @@ public interface IRequestService
     Task UpdateMarkets(JTResultMarketRequestModel request, IEnumerable<Market> markets, int matchId);
 }
 
-
 public class RequestService(
     IInvokeExternalAPI invokeExternalApi,
     IOptions<AppSettingsKey> options,
     IHandleResponseService handleResponseService) : IRequestService
 {
-
     public async Task<List<Market>> GetMarkets(int matchId)
     {
-        var result =
-            await invokeExternalApi.GetAsync<SoccerMarketItem>(
-                $"{options.Value.ThirdPartyUri.JackTimeMarkets}?MatchIds={matchId}");
+        var marketApi = $"{options.Value.ThirdPartyUri.JackTimeMarkets}/{CashOutEndpoints.GetMarkets}";
+        var result = await invokeExternalApi.GetAsync<SoccerMarketItem>($"{marketApi}/?MatchIds={matchId}");
+        await LogService.InfoAsync($"Get Markets API: {result}");
 
         return result is { IsSuccess: true } ? result.Data.ToList() : [];
     }
@@ -34,11 +34,11 @@ public class RequestService(
     public async Task UpdateMarkets(JTResultMarketRequestModel request, IEnumerable<Market> markets, int matchId)
     {
         await LogService.InfoAsync($"Request Update Result Match {matchId}: " + request);
-        var response = await invokeExternalApi.PutAsync(request, options.Value.ThirdPartyUri.JackTimeResultMarkets);
+        var updateMarketApi = $"{options.Value.ThirdPartyUri.JackTimeMarkets}/{CashOutEndpoints.ResultMarkets}";
+        var response = await invokeExternalApi.PutAsync(request, updateMarketApi);
 
         await handleResponseService.HandleUpdateResultResponse(response, markets, matchId);
     }
-
 
     public JTResultMarketRequestModel CreateSoccerJTRequest(IEnumerable<Market> markets, IEnumerable<JackTimeResult> result)
     {
@@ -62,7 +62,6 @@ public class RequestService(
         };
     }
 
-
     private static IEnumerable<WayScore> GenerateOutCome(IEnumerable<JackTimeResult> result, int betType, decimal goalLine)
     {
         var groupBetType = result.Where(r => r.Bettype == betType && goalLine == r.Hdp).ToList();
@@ -79,4 +78,3 @@ public class RequestService(
         });
     }
 }
-

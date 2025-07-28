@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
 using Fanex.Data.Repository;
 using Fanex.RemotingRef;
-using Settlement.Consumer.Criteria;
+using Settlement.Shared.Criteria;
 using Settlement.Shared.Models;
 
 namespace Settlement.Shared.Services;
+
 public interface IHandleResponseService
 {
     public Task HandleVoidBetResponse(HttpResponseMessage response, VoidBetApiModel model, int matchId);
@@ -31,6 +32,7 @@ public class HandleResponseService(SendMailService sendMailService, IMapper mapp
             sendMailService.SendMail(mailModel, false);
         });
     }
+
     private async Task HandleResponse(HttpResponseMessage response, int matchId, Action<NotificationModel> configureMailModel)
     {
         var matchInfo = await GetMatchInfo(matchId);
@@ -44,6 +46,7 @@ public class HandleResponseService(SendMailService sendMailService, IMapper mapp
             configureMailModel(mailModel);
         }
     }
+
     private async Task<MatchDetail> GetMatchInfo(int matchId)
     {
         var criteria = new GetMatchDetailCriteria

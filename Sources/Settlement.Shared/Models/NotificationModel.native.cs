@@ -1,5 +1,4 @@
 ﻿using Fanex.RemotingRef;
-using Fanex.Settlement.MessageBridge.JackTime;
 using System.Text.Json.Serialization;
 
 namespace Settlement.Shared.Models;

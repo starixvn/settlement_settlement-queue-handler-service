@@ -24,24 +24,26 @@ services.AddJackTimeServices();
 services.AddSharedServices();
 services.AddFanexLogSentry(builder.Configuration);
 services.AddAutoMapper();
-services.AddRedisCache(configuration.GetSection("fanex.caching.redis"));
+services.AddRedisCache(configuration.GetSection("Fanex.Caching.Redis"));
 services.AddHostedService<AutoJackTimeService>();
 services.AddOneBookUmForService(builder.Configuration);
 services.AddFanexLogSentry(configuration);
-RefDataTypeContainer
-    .ConnectTo(new Uri(configuration.GetSection("Fanex.RemotingRef.Service.Url").Value))
-    .FromApplication("Settlement");
+
+// Configure RemotingRef with null check
+var remotingRefUrl = configuration.GetSection("Fanex.RemotingRef.Service.Url").Value;
+if (!string.IsNullOrEmpty(remotingRefUrl))
+{
+    RefDataTypeContainer
+        .ConnectTo(new Uri(remotingRefUrl))
+        .FromApplication("Settlement");
+}
 
 AppSettings.AppMailId = configuration.GetSection("MailServer:Id").Value;
 AppSettings.AppMailAddress = configuration.GetSection("MailServer:Address").Value;
 
-
+services.AddHealthChecks();
 
 var app = builder.Build();
+app.MapHealthChecks("/healthz");
 
-
-app.Run(async context =>
-{
-    await context.Response.WriteAsync("OK");
-});
 await app.RunAsync();
