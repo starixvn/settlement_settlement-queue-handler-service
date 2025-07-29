@@ -1,6 +1,10 @@
 ﻿using MassTransit;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Settlement.Consumer.Constants;
 using Settlement.Consumer.Consumers;
+
+namespace Settlement.QueueHandlerService;
 
 public static class MassTransitConfig
 {

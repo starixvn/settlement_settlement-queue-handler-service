@@ -5,6 +5,7 @@ using Settlement.Consumer.Services;
 using Settlement.Shared.Services;
 
 namespace Settlement.Shared;
+
 public static class ServiceExtension
 {
     public static void AddSharedServices(this IServiceCollection services)

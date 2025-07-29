@@ -1,4 +1,6 @@
 ﻿using Fanex.Caching;
+using Fanex.Logging;
+using Fanex.SiteDbConnectionManager.Client.Services;
 using Microsoft.Extensions.Options;
 using Settlement.JackTime.Criteria;
 using Settlement.JackTime.Models;
@@ -9,14 +11,16 @@ namespace Settlement.JackTime.Services;
 public interface IJackTimeService
 {
     Task<List<Match>> GetMatches();
+
     Task Consume(Match match);
 }
 
 public class JackTimeService(
     ISoccerJackTimeService soccerJackTimeService,
     IDynamicRepository repository,
-    ICache cache,
-    IOptions<AppSettingsKey> options) : IJackTimeService
+    ICacheService cache,
+    SiteDbClientService siteDbClientService,
+    IOptions<AppSettingsKey> appSettingsKey) : IJackTimeService
 {
     private const string CacheKey = "Settlement-AutoPayout-AutoInstant-LeagueId";
 
@@ -26,10 +30,9 @@ public class JackTimeService(
         {
             await soccerJackTimeService.UpdateTicket(match);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            await Fanex.Logging.LogService.ErrorAsync($"Soccer JackTime Consumer Failed: MatchId({match.MatchId})" +
-                                                      $" - {e.Message}" + $"\n {e.StackTrace}");
+            await LogService.ErrorAsync($"Soccer JackTime Consumer Failed: MatchId({match.MatchId}) - {ex.Message}", ex);
         }
     }
 
@@ -37,9 +40,14 @@ public class JackTimeService(
     {
         var matches = await GetMatchesFromRepository();
 
+        if (matches.Count == 0)
+        {
+            return matches;
+        }
+
         var (_, leagueId) = await cache.TryGetAsync<int>(CacheKey);
 
-        return options.Value.EnvironmentName switch
+        return appSettingsKey.Value.EnvironmentName switch
         {
             "PRO" => leagueId > 0
                 ? (from m in matches where m.LeagueId != leagueId select m).ToList()
@@ -49,22 +57,28 @@ public class JackTimeService(
         };
     }
 
-
     private async Task<List<Match>> GetMatchesFromRepository()
     {
         var criteria = new CashOutTicketSelCriteria();
-        var siteDbServer = options.Value.SiteDbServers;
-        var getTicketInfoTasks = siteDbServer.Select(s => GetTicketInfo(s, criteria));
+        var siteDbServer = await siteDbClientService.GetActiveSiteDbAsync();
+        var getTicketInfoTasks = siteDbServer.Select(s => GetTicketInfo(s.SiteName, criteria));
 
         var results = await Task.WhenAll(getTicketInfoTasks);
-        var infos = results.SelectMany(r => r);
-        var grouped = infos.GroupBy(m => new
-        {
-            m.MatchId,
-            m.LeagueId
-        });
+        var allInfos = results.SelectMany(r => r).ToList();
 
-        return grouped.Select(group => new Match { MatchId = group.Key.MatchId, LeagueId = group.Key.LeagueId, VoidBetInfos = group.ToList() }).ToList();
+        if (allInfos.Count == 0)
+        {
+            return [];
+        }
+
+        var grouped = allInfos.GroupBy(m => new { m.MatchId, m.LeagueId });
+
+        return grouped.Select(group => new Match
+        {
+            MatchId = group.Key.MatchId,
+            LeagueId = group.Key.LeagueId,
+            VoidBetInfos = group.ToList()
+        }).ToList();
     }
 
     private async Task<IEnumerable<VoidBetInfo>> GetTicketInfo(string server, CashOutTicketSelCriteria criteria)

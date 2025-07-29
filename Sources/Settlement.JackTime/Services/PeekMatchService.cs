@@ -1,8 +1,8 @@
-﻿
-using Settlement.JackTime.Models;
+﻿using Settlement.JackTime.Models;
+
 namespace Settlement.JackTime.Services;
 
-interface IPeekMatchService
+internal interface IPeekMatchService
 {
     Task<List<Match>> PeekNewMatch();
 }
@@ -13,8 +13,16 @@ public class PeekMatchService(IJackTimeService jackTimeService) : IPeekMatchServ
 
     private readonly object lockObject = new();
 
-    public List<Match> PoolOfMatches => poolOfMatches;
-
+    public List<Match> PoolOfMatches
+    {
+        get
+        {
+            lock (lockObject)
+            {
+                return poolOfMatches.ToList();
+            }
+        }
+    }
 
     public void Remove(Match match)
     {
@@ -28,6 +36,11 @@ public class PeekMatchService(IJackTimeService jackTimeService) : IPeekMatchServ
     {
         var matches = await jackTimeService.GetMatches();
 
+        if (matches.Count == 0)
+        {
+            return [];
+        }
+
         lock (lockObject)
         {
             var newMatches = matches.Except(poolOfMatches).ToList();
@@ -36,5 +49,4 @@ public class PeekMatchService(IJackTimeService jackTimeService) : IPeekMatchServ
             return newMatches;
         }
     }
-
 }

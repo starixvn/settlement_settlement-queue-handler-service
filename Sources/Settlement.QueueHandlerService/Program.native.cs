@@ -1,8 +1,10 @@
-using Fanex.Caching.Redis;
 using Fanex.Data.SqlServer;
 using Fanex.Logging.Sentry.RavenClient;
 using Fanex.MailDeliver.MailClient;
 using Fanex.RemotingRef;
+using Fanex.SiteDbConnectionManager.Client;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 using ONEbook.UM.DependencyInjection;
 using Settlement.JackTime;
 using Settlement.QueueHandlerService;
@@ -24,12 +26,12 @@ services.AddJackTimeServices();
 services.AddSharedServices();
 services.AddFanexLogSentry(builder.Configuration);
 services.AddAutoMapper();
-services.AddRedisCache(configuration.GetSection("Fanex.Caching.Redis"));
+services.AddRedisCacheConfig(builder.Configuration);
 services.AddHostedService<AutoJackTimeService>();
 services.AddOneBookUmForService(builder.Configuration);
 services.AddFanexLogSentry(configuration);
+services.AddSiteDbConnectionManager();
 
-// Configure RemotingRef with null check
 var remotingRefUrl = configuration.GetSection("Fanex.RemotingRef.Service.Url").Value;
 if (!string.IsNullOrEmpty(remotingRefUrl))
 {
