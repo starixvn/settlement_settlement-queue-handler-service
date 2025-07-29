@@ -1,6 +1,7 @@
 ﻿using Fanex.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using Settlement.Consumer.Constants;
 using Settlement.Consumer.Models.SoccerJackTime;
 using Settlement.Shared.Models;
@@ -26,14 +27,14 @@ public class RequestService(
     {
         var marketApi = $"{options.Value.ThirdPartyUri.JackTimeMarkets}/{CashOutEndpoints.GetMarkets}";
         var result = await invokeExternalApi.GetAsync<SoccerMarketItem>($"{marketApi}/?MatchIds={matchId}");
-        await LogService.InfoAsync($"Get Markets API: {result}");
+        await LogService.InfoAsync($"Get Markets API: {JsonConvert.SerializeObject(result)}");
 
         return result is { IsSuccess: true } ? result.Data.ToList() : [];
     }
 
     public async Task UpdateMarkets(JTResultMarketRequestModel request, IEnumerable<Market> markets, int matchId)
     {
-        await LogService.InfoAsync($"Request Update Result Match {matchId}: " + request);
+        await LogService.InfoAsync($"Request Update Result Match {matchId}: " + JsonConvert.SerializeObject(request));
         var updateMarketApi = $"{options.Value.ThirdPartyUri.JackTimeMarkets}/{CashOutEndpoints.ResultMarkets}";
         var response = await invokeExternalApi.PutAsync(request, updateMarketApi);
 
@@ -44,21 +45,11 @@ public class RequestService(
     {
         return new JTResultMarketRequestModel
         {
-            Header = new HeaderRequest
+            Markets = markets.Select(m => new MarketData
             {
-                Transaction_Id = new TransactionId
-                {
-                    Id = Guid.NewGuid().ToString()
-                }
-            },
-            Request = new MarketModel
-            {
-                Markets = markets.Select(m => new MarketData
-                {
-                    Market = m,
-                    WayScores = GenerateOutCome(result, m.BetType, m.GoalLine)
-                }).Where(m => m.WayScores.Any())
-            }
+                Market = m,
+                WayScores = GenerateOutCome(result, m.BetType, m.GoalLine)
+            }).Where(m => m.WayScores.Any())
         };
     }
 

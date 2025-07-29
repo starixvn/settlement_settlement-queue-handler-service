@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Functions SiteName="NAP - Settlement site">
   <Function Name="CashoutSel">
-    <Setting Key="NAP_Settlement_1_CashoutSel" SpName="NAP_Settlement_1_CashoutSel" DbName="DBTXN.bodb02.wsv_nap" />
+    <Setting Key="NAP_Settlement_1_CashoutSel" SpName="NAP_Settlement_1_CashoutSel_xtest" DbName="DBTXN.bodb02.wsv_nap" />
     <Setting Key="NAP_Set_MatchSelInfo" SpName="NAP_Set_MatchSelInfo" DbName="DBPRO.bodb02.wsv_nap" />
   </Function>
   <Function Name="NAP_Settlement_1_CashoutTicketSel">
-    <Setting Key="NAP_Settlement_1_CashoutTicketSel_DBSITE01" SpName="NAP_Settlement_1_CashoutTicketSel" DbName="DBSITE01.bodb02.wsv_nap" />
-    <Setting Key="NAP_Settlement_1_CashoutTicketSel_DBSITE02" SpName="NAP_Settlement_1_CashoutTicketSel" DbName="DBSITE02.bodb02.wsv_nap" />
-    <Setting Key="NAP_Settlement_1_CashoutTicketSel_DBSITE03" SpName="NAP_Settlement_1_CashoutTicketSel" DbName="DBSITE03.bodb02.wsv_nap" />
+    <Setting Key="NAP_Settlement_1_CashoutTicketSel_DBSITE01" SpName="NAP_Settlement_1_CashoutTicketSel_xtest" DbName="DBSITE01.bodb02.wsv_nap" />
+    <Setting Key="NAP_Settlement_1_CashoutTicketSel_DBSITE02" SpName="NAP_Settlement_1_CashoutTicketSel_xtest" DbName="DBSITE02.bodb02.wsv_nap" />
+    <Setting Key="NAP_Settlement_1_CashoutTicketSel_DBSITE03" SpName="NAP_Settlement_1_CashoutTicketSel_xtest" DbName="DBSITE03.bodb02.wsv_nap" />
   </Function>
 </Functions>

@@ -4,12 +4,6 @@ namespace Settlement.Consumer.Models.SoccerJackTime;
 
 public class JTResultMarketRequestModel
 {
-    public HeaderRequest Header { get; set; }
-    public MarketModel Request { get; set; }
-}
-
-public class MarketModel
-{
     public IEnumerable<MarketData> Markets { get; set; } = [];
 }
 
