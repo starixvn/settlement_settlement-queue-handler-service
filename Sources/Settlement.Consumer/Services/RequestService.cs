@@ -27,7 +27,6 @@ public class RequestService(
     {
         var marketApi = $"{options.Value.ThirdPartyUri.JackTimeMarkets}/{CashOutEndpoints.GetMarkets}";
         var result = await invokeExternalApi.GetAsync<SoccerMarketItem>($"{marketApi}/?MatchIds={matchId}");
-        await LogService.InfoAsync($"Get Markets API: {JsonConvert.SerializeObject(result)}");
 
         return result is { IsSuccess: true } ? result.Data.ToList() : [];
     }
@@ -37,6 +36,7 @@ public class RequestService(
         await LogService.InfoAsync($"Request Update Result Match {matchId}: " + JsonConvert.SerializeObject(request));
         var updateMarketApi = $"{options.Value.ThirdPartyUri.JackTimeMarkets}/{CashOutEndpoints.ResultMarkets}";
         var response = await invokeExternalApi.PutAsync(request, updateMarketApi);
+        await LogService.InfoAsync($"Response Update Result Match {matchId}: " + JsonConvert.SerializeObject(response));
 
         await handleResponseService.HandleUpdateResultResponse(response, markets, matchId);
     }

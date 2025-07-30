@@ -2,6 +2,7 @@
 using Fanex.Logging;
 using Fanex.SiteDbConnectionManager.Client.Services;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using Settlement.JackTime.Criteria;
 using Settlement.JackTime.Models;
 using Settlement.Shared.Models;
@@ -29,6 +30,8 @@ public class JackTimeService(
         try
         {
             await soccerJackTimeService.UpdateTicket(match);
+            await LogService.InfoAsync(
+                $"Soccer JackTime Ticket Match {match.MatchId}: {JsonConvert.SerializeObject(match.VoidBetInfos)}");
         }
         catch (Exception ex)
         {
@@ -61,7 +64,8 @@ public class JackTimeService(
     {
         var criteria = new CashOutTicketSelCriteria();
         var siteDbServer = await siteDbClientService.GetActiveSiteDbAsync();
-        var getTicketInfoTasks = siteDbServer.Select(s => GetTicketInfo(s.SiteName, criteria));
+        var excludeDBTXN = siteDbServer.Where(s => s.SiteDbGroupId > 0);
+        var getTicketInfoTasks = excludeDBTXN.Select(s => GetTicketInfo(s.SiteName, criteria));
 
         var results = await Task.WhenAll(getTicketInfoTasks);
         var allInfos = results.SelectMany(r => r).ToList();
