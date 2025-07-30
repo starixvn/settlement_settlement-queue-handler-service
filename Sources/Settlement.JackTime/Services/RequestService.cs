@@ -1,4 +1,5 @@
 ﻿using Fanex.Logging;
+using Fanex.Logging;
 using Fanex.Settlement.MessageBridge.JackTime.Constants;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;

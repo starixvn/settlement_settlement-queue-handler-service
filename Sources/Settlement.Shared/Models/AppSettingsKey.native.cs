@@ -12,6 +12,4 @@ public class ThirdPartySettingKeys
     public string JackTimeTicket { get; set; }
 
     public string JackTimeMarkets { get; set; }
-
-    public string JackTimeResultMarkets { get; set; }
 }

@@ -29,6 +29,13 @@ public class JackTimeService(
     {
         try
         {
+            if (string.IsNullOrEmpty(appSettingsKey.Value.ThirdPartyUri.JackTimeTicket))
+            {
+                return;
+            }
+
+            await LogService.InfoAsync(
+                $"Soccer JackTime Ticket Match {match.MatchId}: {JsonConvert.SerializeObject(match.VoidBetInfos)}");
             await soccerJackTimeService.UpdateTicket(match);
             await LogService.InfoAsync(
                 $"Soccer JackTime Ticket Match {match.MatchId}: {JsonConvert.SerializeObject(match.VoidBetInfos)}");
