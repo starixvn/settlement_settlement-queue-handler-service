@@ -13,14 +13,11 @@ public class PeekMatchService(IJackTimeService jackTimeService) : IPeekMatchServ
 
     private readonly object lockObject = new();
 
-    public List<Match> PoolOfMatches
+    public List<Match> GetPoolOfMatches()
     {
-        get
+        lock (lockObject)
         {
-            lock (lockObject)
-            {
-                return poolOfMatches.ToList();
-            }
+            return poolOfMatches.ToList();
         }
     }
 

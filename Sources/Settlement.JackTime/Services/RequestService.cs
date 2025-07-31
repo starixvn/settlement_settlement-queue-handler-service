@@ -1,18 +1,16 @@
-﻿
-using Fanex.Logging;
+﻿using Fanex.Logging;
 using Fanex.Settlement.MessageBridge.JackTime.Constants;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Settlement.Consumer.Services;
 using Settlement.Shared.Models;
 using Settlement.Shared.Services;
 
 namespace Settlement.JackTime.Services;
+
 public interface IRequestService
 {
     Task UpdateVoidBetTicket(IList<VoidBetInfo> voidBetInfos, int matchId);
 }
-
 
 public class RequestService(
     IOptions<AppSettingsKey> options,
@@ -40,4 +38,3 @@ public class RequestService(
         }
     }
 }
-

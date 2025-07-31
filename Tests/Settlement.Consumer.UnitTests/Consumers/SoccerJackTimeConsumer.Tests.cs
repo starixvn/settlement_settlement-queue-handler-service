@@ -1,37 +1,51 @@
-﻿using Fanex.Settlement.MessageBridge.JackTime;
+﻿using Fanex.Logging;
+using Fanex.Logging.Sentry.RavenClient;
+using Fanex.Settlement.MessageBridge.JackTime;
 using MassTransit;
 using NSubstitute;
 using Settlement.Consumer.Consumers;
 using Settlement.Consumer.Services;
 using Settlement.Shared.Models;
+using SharpRaven;
+
+namespace Settlement.Consumer.UnitTests.Consumers;
 
 public class SoccerJackTimeConsumerTests
 {
-    private readonly IRequestService _mockRequestService;
-    private readonly ISoccerJackTimeService _mockSoccerJackTimeService;
-    private readonly SoccerJackTimeConsumer _consumer;
-    private readonly ConsumeContext<SoccerResult> _context;
+    private readonly IRequestService requestService;
+    private readonly ISoccerJackTimeService soccerJackTimeService;
+    private readonly SoccerJackTimeConsumer soccerJackTimeConsumer;
+    private readonly ConsumeContext<SoccerResult> context;
 
     public SoccerJackTimeConsumerTests()
     {
-        _mockRequestService = Substitute.For<IRequestService>();
-        _mockSoccerJackTimeService = Substitute.For<ISoccerJackTimeService>();
-        _context = Substitute.For<ConsumeContext<SoccerResult>>();
-        _consumer = new SoccerJackTimeConsumer(_mockRequestService, _mockSoccerJackTimeService);
-        _context.Message.Returns(new SoccerResult { MatchId = 1 });
+        var logEngine = new List<ILogEngine>();
+
+        var sentryEngineOptions = new SentryEngineOptions
+        {
+            Dsn = new Dsn("http://2dfee6c5bbc844558ad3bef5f4b59ee1@sentry.nexdev.net/9")
+        };
+        logEngine.Add(new SentryLogging(sentryEngineOptions));
+
+        LogManager.SetDefaultLogCategory("NAP-Settlement-LOCAL").Use(logEngine);
+        requestService = Substitute.For<IRequestService>();
+        soccerJackTimeService = Substitute.For<ISoccerJackTimeService>();
+        context = Substitute.For<ConsumeContext<SoccerResult>>();
+        soccerJackTimeConsumer = new SoccerJackTimeConsumer(requestService, soccerJackTimeService);
+        context.Message.Returns(new SoccerResult { MatchId = 1 });
     }
 
     [Fact]
     public async Task Consume_ShouldNotCallUpdateMethods_WhenNoMarketsOffered()
     {
         // Arrange
-        _mockRequestService.GetMarkets(Arg.Any<int>()).Returns(Task.FromResult(new List<Market>()));
+        requestService.GetMarkets(Arg.Any<int>()).Returns(Task.FromResult(new List<Market>()));
 
         // Act
-        await _consumer.Consume(_context);
+        await soccerJackTimeConsumer.Consume(context);
 
         // Assert
-        await _mockSoccerJackTimeService.DidNotReceive().UpdateResultMarket(Arg.Any<SoccerResult>(), Arg.Any<List<Market>>());
+        await soccerJackTimeService.DidNotReceive().UpdateResultMarket(Arg.Any<SoccerResult>(), Arg.Any<List<Market>>());
     }
 
     [Fact]
@@ -39,12 +53,12 @@ public class SoccerJackTimeConsumerTests
     {
         // Arrange
         var markets = new List<Market> { new Market() };
-        _mockRequestService.GetMarkets(Arg.Any<int>()).Returns(Task.FromResult(markets));
+        requestService.GetMarkets(Arg.Any<int>()).Returns(Task.FromResult(markets));
 
         // Act
-        await _consumer.Consume(_context);
+        await soccerJackTimeConsumer.Consume(context);
 
         // Assert
-        await _mockSoccerJackTimeService.Received(1).UpdateResultMarket(Arg.Any<SoccerResult>(), markets);
+        await soccerJackTimeService.Received(1).UpdateResultMarket(Arg.Any<SoccerResult>(), markets);
     }
 }

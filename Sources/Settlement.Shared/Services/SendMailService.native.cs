@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using RazorEngineCore;
-using Settlement.Consumer.Constants;
 using Settlement.Shared.Models;
 using System.Collections.Concurrent;
 
@@ -40,7 +39,7 @@ public class SendMailServiceImp(
         return $"Settlement issue - [{item.Action}] - [{item.MatchCode}/{item.MatchId}] {item.HomeName} - {item.AwayName}";
     }
 
-    private string? MailTo(int sportType)
+    private string MailTo(int sportType)
     {
         var emailGroup = sportType switch
         {

@@ -1,7 +1,6 @@
 ﻿using Fanex.Data.Repository;
 using Fanex.RemotingRef;
 using Microsoft.Extensions.DependencyInjection;
-using Settlement.Consumer.Services;
 using Settlement.Shared.Services;
 
 namespace Settlement.Shared;

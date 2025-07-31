@@ -1,12 +1,13 @@
 ﻿using Newtonsoft.Json;
 using System.Text;
 
-namespace Settlement.Consumer.Services;
+namespace Settlement.Shared.Services;
+
 public interface IInvokeExternalAPI
 {
     Task<HttpResponseMessage> PostAsync(object request, string url);
 
-    Task<T?> GetAsync<T>(string url);
+    Task<T> GetAsync<T>(string url);
 
     Task<HttpResponseMessage> PutAsync(object request, string url);
 }
@@ -22,7 +23,6 @@ public class InvokeExternalAPI(IHttpClientFactory httpClientFactory) : IInvokeEx
         var response = await httpClient.PostAsync(new Uri(url), requestContent);
 
         return response;
-
     }
 
     public async Task<HttpResponseMessage> PutAsync(object request, string url)
@@ -34,8 +34,7 @@ public class InvokeExternalAPI(IHttpClientFactory httpClientFactory) : IInvokeEx
         return response;
     }
 
-
-    public async Task<T?> GetAsync<T>(string url)
+    public async Task<T> GetAsync<T>(string url)
     {
         try
         {

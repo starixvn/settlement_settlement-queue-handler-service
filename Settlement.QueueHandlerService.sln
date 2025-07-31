@@ -26,6 +26,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Settlement.JackTime", "Sour
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Settlement.Shared", "Sources\Settlement.Shared\Settlement.Shared.csproj", "{C8DABFBE-65A9-D002-5E07-42EC005A0342}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Settlement.JackTime.UnitTests", "Tests\Settlement.JackTime.UnitTests\Settlement.JackTime.UnitTests.csproj", "{87CD0F7D-F81C-442A-8782-51BAD48CDB79}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,6 +54,10 @@ Global
 		{C8DABFBE-65A9-D002-5E07-42EC005A0342}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8DABFBE-65A9-D002-5E07-42EC005A0342}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8DABFBE-65A9-D002-5E07-42EC005A0342}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87CD0F7D-F81C-442A-8782-51BAD48CDB79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87CD0F7D-F81C-442A-8782-51BAD48CDB79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87CD0F7D-F81C-442A-8782-51BAD48CDB79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87CD0F7D-F81C-442A-8782-51BAD48CDB79}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -62,6 +68,7 @@ Global
 		{F7C5DF30-1D8A-4243-BB34-9B8193E8DE27} = {38BA979D-DB4F-4EE1-A8FB-91C5A73A6C9C}
 		{D5A8032B-239E-E0F7-0D41-9FAEA8C5FAE2} = {A3DFB907-9A21-42A7-8C36-648C37ECE8CD}
 		{C8DABFBE-65A9-D002-5E07-42EC005A0342} = {A3DFB907-9A21-42A7-8C36-648C37ECE8CD}
+		{87CD0F7D-F81C-442A-8782-51BAD48CDB79} = {38BA979D-DB4F-4EE1-A8FB-91C5A73A6C9C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A7AD1181-2741-4A5E-90D2-BE444F7BDD11}

@@ -10,9 +10,8 @@ public class Match
 
     public IList<VoidBetInfo> VoidBetInfos { get; set; } = new List<VoidBetInfo>();
 
-    public override bool Equals(object? obj)
+    public override bool Equals(object obj)
     {
-        return obj is Match match
-               && match.MatchId == MatchId;
+        return obj is Match match && match.MatchId == MatchId;
     }
 }
