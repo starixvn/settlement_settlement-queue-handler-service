@@ -1,29 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 <PropertyGroup>
 	<TargetFramework>net9.0</TargetFramework>
 	<Nullable>disable</Nullable>
 	<ImplicitUsings>enable</ImplicitUsings>
-	<OutputType>Exe</OutputType>
 </PropertyGroup>
-
-<ItemGroup>
-  <None Remove="appsettings.json" />
-  <None Remove="appsettings.KLPROD.json" />
-  <None Remove="appsettings.LOCAL.json" />
-  <None Remove="appsettings.SIT.json" />
-  <None Remove="appsettings.UAT.json" />
-</ItemGroup>
-
-<ItemGroup>
-  <Content Include="appsettings.json">
-    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-  </Content>
-  <Content Include="appsettings.KLPROD.json" />
-  <Content Include="appsettings.LOCAL.json" />
-  <Content Include="appsettings.SIT.json" />
-  <Content Include="appsettings.UAT.json" />
-</ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="14.0.0" />
