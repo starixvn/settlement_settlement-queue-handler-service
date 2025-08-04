@@ -13,11 +13,6 @@ public class SoccerJackTimeService(
 {
     public async Task UpdateTicket(Match match)
     {
-        if (match.VoidBetInfos.Count == 0)
-        {
-            return;
-        }
-
         var validTicketInfos = match.VoidBetInfos.Where(FilterValidTicketInfos).ToList();
         if (validTicketInfos.Count == 0)
         {

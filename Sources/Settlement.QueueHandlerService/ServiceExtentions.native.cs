@@ -1,6 +1,5 @@
 ﻿using Fanex.Caching;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+using Fanex.Caching.Redis;
 using Settlement.Consumer;
 using Settlement.Consumer.Services;
 using Settlement.Shared;
@@ -28,7 +27,14 @@ public static class ServiceExtensions
 
     public static void AddRedisCacheConfig(this IServiceCollection services, IConfiguration configuration)
     {
-        var redisConfig = configuration.GetSection("Fanex.Caching.Redis:RedisConfig").Value;
-        services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect($"{redisConfig}"));
+        var connectionString = configuration.GetValue<string>("Fanex.Caching.Redis:ConnectionString");
+        var applicationName = configuration.GetValue<string>("Fanex.Caching.Redis:ApplicationName");
+
+        services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect($"{connectionString},ChannelPrefix={applicationName}"));
+        services.AddSingleton<ICache>(new RedisCache(new RedisCacheOptions
+        {
+            ConnectionString = connectionString,
+            ApplicationName = applicationName,
+        }));
     }
 }
