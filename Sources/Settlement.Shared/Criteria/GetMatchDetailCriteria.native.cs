@@ -1,0 +1,12 @@
+﻿using Fanex.Data.Repository;
+
+namespace Settlement.Shared.Criteria;
+
+public class GetMatchDetailCriteria : NonQueryCommand
+{
+    public int MatchId { get; set; }
+
+    public override string GetSettingKey() => "NAP_Set_MatchSelInfo";
+
+    public override bool IsValid() => MatchId > 0;
+}

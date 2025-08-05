@@ -1,0 +1,20 @@
+﻿<b>Dear all,</b>
+<br />
+<br />
+<span>@Model.MatchCode</span> (<b>@Model.HomeName</b> - @Model.AwayName)
+<br />
+@Model.Message
+<br />
+<br />
+<div><b>@Model.Action</b></div>
+<b>Market List (BetType - GoalLine):</b>
+@foreach (var item in Model.Markets)
+{
+<div>@item.BetType - @item.GoalLine</div>
+}
+
+<br />
+<span>Start time: <i>@Model.StartDate</i></span>
+<br />
+<br />
+Best regards,
