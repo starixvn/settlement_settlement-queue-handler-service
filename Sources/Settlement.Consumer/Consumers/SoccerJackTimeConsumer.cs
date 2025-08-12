@@ -2,7 +2,6 @@
 using Fanex.Settlement.MessageBridge.JackTime;
 using MassTransit;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using Settlement.Consumer.Services;
 using Settlement.Shared.Models;
 
@@ -21,9 +20,7 @@ public class SoccerJackTimeConsumer(
             {
                 return;
             }
-
             var marketOffered = await requestService.GetMarkets(context.Message.MatchId);
-            await LogService.InfoAsync($"Match {context.Message.MatchId} - Markets: " + JsonConvert.SerializeObject(marketOffered));
             if (marketOffered.Count == 0)
             {
                 return;

@@ -72,6 +72,7 @@ public class JackTimeService(
         var criteria = new CashOutTicketSelCriteria();
         var siteDbServer = await siteDbClientService.GetActiveSiteDbAsync();
         var excludeDBTXN = siteDbServer.Where(s => s.SiteDbGroupId > 0);
+
         var getTicketInfoTasks = excludeDBTXN.Select(s => GetTicketInfo(s.SiteName, criteria));
 
         var results = await Task.WhenAll(getTicketInfoTasks);
