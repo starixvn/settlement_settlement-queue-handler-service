@@ -1,12 +1,10 @@
-﻿using Fanex.Logging;
-using Fanex.Logging.Sentry.RavenClient;
-using Fanex.Settlement.MessageBridge.JackTime;
+﻿using Fanex.Settlement.MessageBridge.JackTime;
 using MassTransit;
 using NSubstitute;
 using Settlement.Consumer.Consumers;
 using Settlement.Consumer.Services;
 using Settlement.Shared.Models;
-using SharpRaven;
+using Microsoft.Extensions.Options;
 
 namespace Settlement.Consumer.UnitTests.Consumers;
 
@@ -19,19 +17,18 @@ public class SoccerJackTimeConsumerTests
 
     public SoccerJackTimeConsumerTests()
     {
-        var logEngine = new List<ILogEngine>();
-
-        var sentryEngineOptions = new SentryEngineOptions
-        {
-            Dsn = new Dsn("http://2dfee6c5bbc844558ad3bef5f4b59ee1@sentry.nexdev.net/9")
-        };
-        logEngine.Add(new SentryLogging(sentryEngineOptions));
-
-        LogManager.SetDefaultLogCategory("NAP-Settlement-LOCAL").Use(logEngine);
         requestService = Substitute.For<IRequestService>();
         soccerJackTimeService = Substitute.For<ISoccerJackTimeService>();
         context = Substitute.For<ConsumeContext<SoccerResult>>();
-        soccerJackTimeConsumer = new SoccerJackTimeConsumer(requestService, soccerJackTimeService);
+        var options = Options.Create(new AppSettingsKey
+        {
+            EnvironmentName = "LOCAL",
+            ThirdPartyUri = new ThirdPartySettingKeys
+            {
+                JackTimeMarkets = "https://example.com/markets"
+            }
+        });
+        soccerJackTimeConsumer = new SoccerJackTimeConsumer(requestService, soccerJackTimeService, options);
         context.Message.Returns(new SoccerResult { MatchId = 1 });
     }
 
