@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Fanex.Logging;
+using Newtonsoft.Json;
 using System.Text;
 
 namespace Settlement.Shared.Services;
@@ -42,6 +43,7 @@ public class InvokeExternalAPI(IHttpClientFactory httpClientFactory) : IInvokeEx
             var response = await httpClient.GetAsync(new Uri(url));
             response.EnsureSuccessStatusCode();
             var responseContent = await response.Content.ReadAsStringAsync();
+            await LogService.InfoAsync($"Markets: " + JsonConvert.SerializeObject(responseContent));
             return JsonConvert.DeserializeObject<T>(responseContent);
         }
         catch (HttpRequestException exception)

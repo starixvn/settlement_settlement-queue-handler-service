@@ -1,8 +1,10 @@
-﻿using Fanex.Logging;
+﻿using Fanex.Data.Repository;
+using Fanex.Logging;
 using Fanex.Settlement.MessageBridge.JackTime;
 using MassTransit;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using Settlement.Consumer.Criteria;
 using Settlement.Consumer.Services;
 using Settlement.Shared.Models;
 
@@ -11,8 +13,11 @@ namespace Settlement.Consumer.Consumers;
 public class SoccerJackTimeConsumer(
     IRequestService requestService,
     ISoccerJackTimeService soccerJackTimeService,
-    IOptions<AppSettingsKey> options) : IConsumer<SoccerResult>
+    IOptions<AppSettingsKey> options,
+    IDynamicRepository repository) : IConsumer<SoccerResult>
 {
+    private const int LogId = 81062;
+
     public async Task Consume(ConsumeContext<SoccerResult> context)
     {
         try
@@ -21,9 +26,8 @@ public class SoccerJackTimeConsumer(
             {
                 return;
             }
-
             var marketOffered = await requestService.GetMarkets(context.Message.MatchId);
-            await LogService.InfoAsync($"Match {context.Message.MatchId} - Markets: " + JsonConvert.SerializeObject(marketOffered));
+            await LogMarket(marketOffered, context.Message);
             if (marketOffered.Count == 0)
             {
                 return;
@@ -36,5 +40,13 @@ public class SoccerJackTimeConsumer(
             await LogService.ErrorAsync($"Soccer JackTime Consumer Failed: MatchId({context.Message.MatchId}) Action({context.Message.Action})" +
                                                       $" - {e.Message}" + $"\n {e.StackTrace}");
         }
+    }
+
+
+    private async Task LogMarket(IEnumerable<Market> markets, SoccerResult context)
+    {
+        var message = $"Action: {context.Action}, Markets: {JsonConvert.SerializeObject(markets)}";
+        var criteria = new LogCriteria(context.MatchId, message, LogId);
+        await repository.ExecuteAsync(criteria);
     }
 }

@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using ONEbook.UM.Services;
+﻿using ONEbook.UM.Services;
 using Settlement.JackTime.Services;
 
 namespace Settlement.QueueHandlerService.Services;

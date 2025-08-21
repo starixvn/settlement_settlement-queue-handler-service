@@ -1,5 +1,7 @@
 using Fanex.Caching;
 using Fanex.Data.Repository;
+using Fanex.Logging;
+using Fanex.Logging.Sentry.RavenClient;
 using Fanex.SiteDbConnectionManager.Client.Models;
 using Fanex.SiteDbConnectionManager.Client.Services;
 using FluentAssertions;
@@ -10,6 +12,7 @@ using Settlement.JackTime.Criteria;
 using Settlement.JackTime.Models;
 using Settlement.JackTime.Services;
 using Settlement.Shared.Models;
+using SharpRaven;
 using Xunit;
 
 namespace Settlement.JackTime.UnitTests.Services;
@@ -25,6 +28,14 @@ public class JackTimeServiceTests
 
     public JackTimeServiceTests()
     {
+        var logEngine = new List<ILogEngine>();
+        var sentryEngineOptions = new SentryEngineOptions
+        {
+            Dsn = new Dsn("http://2dfee6c5bbc844558ad3bef5f4b59ee1@sentry.nexdev.net/9")
+        };
+        logEngine.Add(new SentryLogging(sentryEngineOptions));
+        LogManager.SetDefaultLogCategory("NAP-Settlement-LOCAL").Use(logEngine);
+
         mockSoccerJackTimeService = Substitute.For<ISoccerJackTimeService>();
         mockRepository = Substitute.For<IDynamicRepository>();
         mockCache = Substitute.For<ICacheService>();
@@ -33,7 +44,11 @@ public class JackTimeServiceTests
 
         mockAppSettingsKey.Value.Returns(new AppSettingsKey
         {
-            EnvironmentName = "LOCAL"
+            EnvironmentName = "LOCAL",
+            ThirdPartyUri = new ThirdPartySettingKeys()
+            {
+                JackTimeTicket = "test"
+            }
         });
 
         jackTimeService = new JackTimeService(
