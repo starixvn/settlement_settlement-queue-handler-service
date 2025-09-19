@@ -48,14 +48,17 @@ public class RequestService(
             Markets = markets.Select(m => new MarketData
             {
                 Market = m,
-                WayScores = GenerateOutCome(result, m.BetType, m.GoalLine)
+                WayScores = GenerateOutCome(result, m.BetType, m.GoalLine, m.LiveHomeScore, m.LiveAwayScore)
             }).Where(m => m.WayScores.Any())
         };
     }
 
-    private static IEnumerable<WayScore> GenerateOutCome(IEnumerable<JackTimeResult> result, int betType, decimal goalLine)
+    private static IEnumerable<WayScore> GenerateOutCome(IEnumerable<JackTimeResult> result, int betType, decimal goalLine, int liveHomeScore, int liveAwayScore)
     {
-        var groupBetType = result.Where(r => r.Bettype == betType && goalLine == r.Hdp).ToList();
+        var groupBetType = result.Where(r => r.Bettype == betType &&
+                                             goalLine == r.Hdp &&
+                                             r.LiveHomeScore == liveHomeScore &&
+                                             r.LiveAwayScore == liveAwayScore).ToList();
 
         if (groupBetType.IsNullOrEmpty())
         {
