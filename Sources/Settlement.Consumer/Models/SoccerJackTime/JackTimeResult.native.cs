@@ -12,4 +12,8 @@ public class JackTimeResult
     public string ResourceId { get; set; }
 
     public byte Way { get; set; }
+
+    public int LiveHomeScore { get; set; }
+
+    public int LiveAwayScore { get; set; }
 }
