@@ -22,6 +22,7 @@ public class InvokeExternalAPI(IHttpClientFactory httpClientFactory) : IInvokeEx
         var httpClient = httpClientFactory.CreateClient();
 
         var response = await httpClient.PostAsync(new Uri(url), requestContent);
+        response.EnsureSuccessStatusCode();
 
         return response;
     }
@@ -32,24 +33,17 @@ public class InvokeExternalAPI(IHttpClientFactory httpClientFactory) : IInvokeEx
         var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
         var httpClient = httpClientFactory.CreateClient();
         var response = await httpClient.PutAsync(new Uri(url), requestContent);
+        response.EnsureSuccessStatusCode();
         return response;
     }
 
     public async Task<T> GetAsync<T>(string url)
     {
-        try
-        {
-            var httpClient = httpClientFactory.CreateClient();
-            var response = await httpClient.GetAsync(new Uri(url));
-            response.EnsureSuccessStatusCode();
-            var responseContent = await response.Content.ReadAsStringAsync();
-            await LogService.InfoAsync($"Markets: " + JsonConvert.SerializeObject(responseContent));
-            return JsonConvert.DeserializeObject<T>(responseContent);
-        }
-        catch (HttpRequestException exception)
-        {
-            await Fanex.Logging.LogService.ErrorAsync($"Queue Handler (Call API Failed): {url}", exception);
-            return default;
-        }
+        var httpClient = httpClientFactory.CreateClient();
+        var response = await httpClient.GetAsync(new Uri(url));
+        response.EnsureSuccessStatusCode();
+        var responseContent = await response.Content.ReadAsStringAsync();
+        await LogService.InfoAsync($"Markets: " + JsonConvert.SerializeObject(responseContent));
+        return JsonConvert.DeserializeObject<T>(responseContent);
     }
 }

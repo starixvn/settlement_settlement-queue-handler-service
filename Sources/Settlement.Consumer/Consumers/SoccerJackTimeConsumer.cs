@@ -26,6 +26,7 @@ public class SoccerJackTimeConsumer(
             {
                 return;
             }
+
             var marketOffered = await requestService.GetMarkets(context.Message.MatchId);
             await LogMarket(marketOffered, context.Message);
             if (marketOffered.Count == 0)
@@ -34,6 +35,12 @@ public class SoccerJackTimeConsumer(
             }
 
             await soccerJackTimeService.UpdateResultMarket(context.Message, marketOffered);
+        }
+        catch (HttpRequestException exception)
+        {
+            await LogAPIFailed(context.Message);
+            await LogService.ErrorAsync($"Soccer JackTime Result API Failed: MatchId({context.Message.MatchId}) Action({context.Message.Action})" +
+                                        $" - {exception.StatusCode} - {exception.Message}");
         }
         catch (Exception e)
         {
@@ -46,6 +53,13 @@ public class SoccerJackTimeConsumer(
     private async Task LogMarket(IEnumerable<Market> markets, SoccerResult context)
     {
         var message = $"Action: {context.Action}, Markets: {JsonConvert.SerializeObject(markets)}";
+        var criteria = new LogCriteria(context.MatchId, message, LogId);
+        await repository.ExecuteAsync(criteria);
+    }
+
+    private async Task LogAPIFailed(SoccerResult context)
+    {
+        var message = $"Cash out Jack Time Failed: Action ({context.Action})";
         var criteria = new LogCriteria(context.MatchId, message, LogId);
         await repository.ExecuteAsync(criteria);
     }
