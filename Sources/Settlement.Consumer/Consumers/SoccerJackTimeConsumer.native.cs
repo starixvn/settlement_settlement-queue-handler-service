@@ -1,9 +1,11 @@
-﻿using Fanex.Data.Repository;
+﻿using System.Data;
+using Fanex.Data.Repository;
 using Fanex.Logging;
 using Fanex.Settlement.MessageBridge.JackTime;
 using MassTransit;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using Settlement.Consumer.Constants;
 using Settlement.Consumer.Criteria;
 using Settlement.Consumer.Services;
 using Settlement.Shared.Models;
@@ -62,5 +64,42 @@ public class SoccerJackTimeConsumer(
         var message = $"Cash out Jack Time Failed: Action ({context.Action})";
         var criteria = new LogCriteria(context.MatchId, message, LogId);
         await repository.ExecuteAsync(criteria);
+    }
+}
+
+
+public class MyConsumerDefinition : ConsumerDefinition<SoccerJackTimeConsumer>
+{
+    private const int RetryInterval = 5000;
+
+    private const int RetryCount = 2;
+
+    private const int FetchItemNumber = 1;
+
+    private const string IgnoreMessage = "SQL";
+
+    public MyConsumerDefinition()
+    {
+        EndpointName = ConsumeType.SoccerJackTime;
+    }
+
+    protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator, IConsumerConfigurator<SoccerJackTimeConsumer> consumerConfigurator,
+        IRegistrationContext context)
+    {
+        if (endpointConfigurator is not IRabbitMqReceiveEndpointConfigurator rmq)
+        {
+            return;
+        }
+
+        rmq.PrefetchCount = FetchItemNumber;
+        rmq.DiscardSkippedMessages();
+        rmq.DiscardFaultedMessages();
+        rmq.UseMessageRetry(retryConfig =>
+        {
+            retryConfig.Ignore<ArgumentNullException>();
+            retryConfig.Ignore<DataException>(x => x.Message.Contains(IgnoreMessage));
+            retryConfig.Interval(RetryCount, TimeSpan.FromMilliseconds(RetryInterval));
+        }
+        );
     }
 }

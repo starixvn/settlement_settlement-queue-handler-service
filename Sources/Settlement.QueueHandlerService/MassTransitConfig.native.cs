@@ -1,7 +1,4 @@
 ﻿using MassTransit;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Settlement.Consumer.Constants;
 using Settlement.Consumer.Consumers;
 
 namespace Settlement.QueueHandlerService;
@@ -14,33 +11,19 @@ public static class MassTransitConfig
         var virtualHost = configuration["RabbitMQ:VirtualHost"];
         var endpoints = configuration.GetSection("RabbitMQ:Endpoints").Get<List<string>>();
 
-        services.AddMassTransit(config =>
+        services.AddMassTransit(busConfigurator =>
         {
-            config.AddConsumer<SoccerJackTimeConsumer>();
+            busConfigurator.AddConsumer<SoccerJackTimeConsumer, MyConsumerDefinition>();
 
-            config.UsingRabbitMq((ctx, cfg) =>
+            busConfigurator.UsingRabbitMq((context, busFactoryConfigurator) =>
             {
-                cfg.Host(rabbitHost, virtualHost, h =>
+                busFactoryConfigurator.Host(rabbitHost, virtualHost, h =>
                 {
                     h.Username(configuration["RabbitMQ:Username"] ?? string.Empty);
                     h.Password(configuration["RabbitMQ:Password"] ?? string.Empty);
                 });
 
-                if (endpoints != null)
-                {
-                    foreach (var endpoint in endpoints)
-                    {
-                        cfg.ReceiveEndpoint(endpoint, e =>
-                        {
-                            switch (endpoint)
-                            {
-                                case ConsumeType.SoccerJackTime:
-                                    e.ConfigureConsumer<SoccerJackTimeConsumer>(ctx);
-                                    break;
-                            }
-                        });
-                    }
-                }
+                busFactoryConfigurator.ConfigureEndpoints(context);
             });
         });
     }

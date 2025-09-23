@@ -1,6 +1,6 @@
-﻿using Fanex.Logging;
+﻿using System.Text;
 using Newtonsoft.Json;
-using System.Text;
+using Polly;
 
 namespace Settlement.Shared.Services;
 
@@ -39,11 +39,19 @@ public class InvokeExternalAPI(IHttpClientFactory httpClientFactory) : IInvokeEx
 
     public async Task<T> GetAsync<T>(string url)
     {
+        var policy = Policy
+           .Handle<HttpRequestException>()
+           .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
         var httpClient = httpClientFactory.CreateClient();
-        var response = await httpClient.GetAsync(new Uri(url));
-        response.EnsureSuccessStatusCode();
-        var responseContent = await response.Content.ReadAsStringAsync();
-        await LogService.InfoAsync($"Markets: " + JsonConvert.SerializeObject(responseContent));
-        return JsonConvert.DeserializeObject<T>(responseContent);
+
+        var json = await policy.ExecuteAsync(async () =>
+        {
+            var response = await httpClient.GetAsync(new Uri(url));
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadAsStringAsync();
+        });
+
+        return JsonConvert.DeserializeObject<T>(json);
     }
 }

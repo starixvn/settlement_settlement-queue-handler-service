@@ -28,7 +28,7 @@ public class RequestService(
         var marketApi = $"{options.Value.ThirdPartyUri.JackTimeMarkets}/{CashOutEndpoints.GetMarkets}";
         var result = await invokeExternalApi.GetAsync<SoccerMarketItem>($"{marketApi}/?MatchIds={matchId}");
 
-        return result is { IsSuccess: true } ? result.Data.ToList() : [];
+        return result is { IsSuccess: true } ? [.. result.Data] : [];
     }
 
     public async Task UpdateMarkets(JTResultMarketRequestModel request, IEnumerable<Market> markets, int matchId)
