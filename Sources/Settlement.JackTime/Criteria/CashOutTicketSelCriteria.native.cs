@@ -3,7 +3,8 @@
 namespace Settlement.JackTime.Criteria;
 public class CashOutTicketSelCriteria : CriteriaBase
 {
-
+    public bool IsTest { get; set; }
+    
     [SpParam(Ignored = true)]
     public string DbServer { get; set; }
 

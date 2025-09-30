@@ -48,7 +48,8 @@ public class JackTimeService(
 
     public async Task<List<Match>> GetMatches()
     {
-        var matches = await GetMatchesFromRepository();
+        var isTest = appSettingsKey.Value.EnvironmentName != "PRO";
+        var matches = await GetMatchesFromRepository(isTest);
 
         if (matches.Count == 0)
         {
@@ -67,9 +68,12 @@ public class JackTimeService(
         };
     }
 
-    private async Task<List<Match>> GetMatchesFromRepository()
+    private async Task<List<Match>> GetMatchesFromRepository(bool isTest)
     {
-        var criteria = new CashOutTicketSelCriteria();
+        var criteria = new CashOutTicketSelCriteria
+        {
+            IsTest = isTest
+        };
         var siteDbServer = await siteDbClientService.GetActiveSiteDbAsync();
         var excludeDBTXN = siteDbServer.Where(s => s.SiteDbGroupId > 0);
 
