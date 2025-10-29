@@ -28,6 +28,8 @@ services.AddFanexLogSentry(builder.Configuration);
 services.AddAutoMapper();
 services.AddRedisCacheConfig(builder.Configuration);
 services.AddHostedService<AutoJackTimeService>();
+services.AddHostedService<GetNotificationService>();
+services.AddHostedService<SettleHybridParlayService>();
 services.AddOneBookUmForService(builder.Configuration);
 services.AddFanexLogSentry(configuration);
 services.AddSiteDbConnectionManager();

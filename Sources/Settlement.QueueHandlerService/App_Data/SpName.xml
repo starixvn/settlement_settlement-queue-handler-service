@@ -10,4 +10,10 @@
     <Setting Key="NAP_Settlement_1_CashoutTicketSel_DBSITE02" SpName="NAP_Settlement_1_CashoutTicketSel" DbName="DBSITE02.bodb02.wsv_nap" />
     <Setting Key="NAP_Settlement_1_CashoutTicketSel_DBSITE03" SpName="NAP_Settlement_1_CashoutTicketSel" DbName="DBSITE03.bodb02.wsv_nap" />
   </Function>
+
+  <Function Name="hybridParlay">
+    <Setting Key="NAP_Admin_HybridParlayLog_Ins" SpName="NAP_Admin_HybridParlayLog_Ins" DbName="DBLOG.bodb_CustomerLog.wsv_nap" />
+    <Setting Key="NAP_Admin_HybridParlay_LegOddsUpd" SpName="NAP_Admin_HybridParlay_LegOddsUpd" DbName="DBTXN.bodb02.wsv_nap" />
+    <Setting Key="NAP_Admin_HybridParlayLogOffset_Sel" SpName="NAP_Admin_HybridParlayLogOffset_Sel" DbName="DBLOG.bodb_CustomerLog.wsv_nap" />
+  </Function>
 </Functions>

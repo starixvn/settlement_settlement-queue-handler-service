@@ -31,4 +31,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Settlement.Shared\Settlement.Shared.csproj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="Services\Hybrid\" />
+  </ItemGroup>
 </Project> 
