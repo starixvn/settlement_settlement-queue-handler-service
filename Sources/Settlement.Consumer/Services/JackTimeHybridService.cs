@@ -1,4 +1,5 @@
 using Fanex.Data.Repository;
+using Fanex.Settlement.MessageBridge.JackTime;
 using Fanex.SiteDbConnectionManager.Client.Services;
 using Newtonsoft.Json;
 using Polly;
@@ -12,7 +13,7 @@ public interface IJackTimeHybridService
 {
     Task ProcessHybridMatch(HybridMatch hybridMatch, bool isUpdateOdds = false);
 
-    Task<IEnumerable<OddModel>> GetOdds(int matchId, DateTime logDate);
+    Task<List<OddModel>> GetOdds(int matchId, DateTimeOffset logDate);
 
     Task<bool> UpdateLegOdds(IEnumerable<OddModel> odds, int userId, int matchId);
 
@@ -61,7 +62,7 @@ public class JackTimeHybridService(
         return results.Any(r => r);
     }
 
-    public async Task<IEnumerable<OddModel>> GetOdds(int matchId, DateTime logDate)
+    public async Task<List<OddModel>> GetOdds(int matchId, DateTimeOffset logDate)
     {
         var retryPolicy = Policy
             .HandleResult<IEnumerable<OddModel>>(result => result == null || !result.Any())
@@ -80,7 +81,7 @@ public class JackTimeHybridService(
             return await repository.FetchAsync<OddModel>(criteria);
         });
 
-        return odds ?? [];
+        return odds.ToList() ?? [];
     }
 
 

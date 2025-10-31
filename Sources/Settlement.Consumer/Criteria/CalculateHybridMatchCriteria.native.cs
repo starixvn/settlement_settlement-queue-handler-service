@@ -20,7 +20,7 @@ public class CalculateHybridMatchCriteria : INonQueryCommand
 
     public string GetSettingKey()
     {
-        return $"NAP_Admin_Calculate_HybridTransID_{DbServer}";
+        return $"NAP_Admin_Calculate_HybridParlay_{DbServer}";
     }
 
     public bool IsValid()

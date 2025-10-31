@@ -1,7 +1,8 @@
 using Fanex.Logging;
+using Fanex.Settlement.MessageBridge.JackTime;
 using MassTransit;
+using Newtonsoft.Json;
 using Settlement.Consumer.Constants;
-using Settlement.Consumer.Models.JackTimeHybrid;
 using Settlement.Consumer.Services;
 using System.Data;
 
@@ -14,8 +15,11 @@ public class JackTimeHybridConsumer(
     {
         try
         {
+            await LogService.InfoAsync($"JackTime Hybrid Consumer Started: MatchId({context.Message.MatchId})");
             var odds = await jackTimeHybridService.GetOdds(context.Message.MatchId, context.Message.LogDate);
+            await LogService.InfoAsync($"JackTime Hybrid Consumer Get Odds: MatchId({context.Message.MatchId}) - {JsonConvert.SerializeObject(odds)}");
             var isUpdateOddSuccessfully = await jackTimeHybridService.UpdateLegOdds(odds, context.Message.UserId, context.Message.MatchId);
+            await LogService.InfoAsync($"JackTime Hybrid Consumer Update Leg Odds: MatchId({context.Message.MatchId}) - {isUpdateOddSuccessfully}");
             await jackTimeHybridService.ProcessHybridMatch(context.Message, isUpdateOddSuccessfully);
             await LogService.InfoAsync($"JackTime Hybrid Consumer Succeeded: MatchId({context.Message.MatchId})");
         }

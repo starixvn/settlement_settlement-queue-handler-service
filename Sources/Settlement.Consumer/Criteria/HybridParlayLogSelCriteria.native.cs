@@ -6,7 +6,7 @@ public class HybridParlayLogSelCriteria : CriteriaBase
 {
     public int MatchId { get; set; }
 
-    public DateTime LogDate { get; set; }
+    public DateTimeOffset LogDate { get; set; }
 
     public override string GetSettingKey() => "NAP_Admin_HybridParlayLog_Sel";
 

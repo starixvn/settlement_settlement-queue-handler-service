@@ -16,14 +16,18 @@
     <Setting Key="NAP_Admin_HybridParlayLogOffset_Sel" SpName="NAP_Admin_HybridParlayLogOffset_Sel" DbName="DBLOG.bodb_CustomerLog.wsv_nap" />
     <Setting Key="NAP_Admin_HybridParlayLog_Sel" SpName="NAP_Admin_HybridParlayLog_Sel" DbName="DBLOG.bodb_CustomerLog.wsv_nap" />
     
-    <Setting Key="NAP_Admin_Calculate_HybridTransID_DBTXN" SpName="NAP_Admin_Calculate_HybridTransID" DbName="DBTXN.bodb02.wsv_nap" />
-    <Setting Key="NAP_Admin_Calculate_HybridTransID_DBSITE01" SpName="NAP_Admin_Calculate_HybridTransID" DbName="DBSITE01.bodb02.wsv_nap" />
-    <Setting Key="NAP_Admin_Calculate_HybridTransID_DBSITE02" SpName="NAP_Admin_Calculate_HybridTransID" DbName="DBSITE02.bodb02.wsv_nap" />
-    <Setting Key="NAP_Admin_Calculate_HybridTransID_DBSITE03" SpName="NAP_Admin_Calculate_HybridTransID" DbName="DBSITE03.bodb02.wsv_nap" />
+    <Setting Key="NAP_Admin_Calculate_HybridParlay_DBTXN" SpName="NAP_Admin_Calculate_HybridParlay" DbName="DBTXN.bodb02.wsv_nap" />
+    <Setting Key="NAP_Admin_Calculate_HybridParlay_DBSITE01" SpName="NAP_Admin_Calculate_HybridParlay" DbName="DBSITE01.bodb02.wsv_nap" />
+    <Setting Key="NAP_Admin_Calculate_HybridParlay_DBSITE02" SpName="NAP_Admin_Calculate_HybridParlay" DbName="DBSITE02.bodb02.wsv_nap" />
+    <Setting Key="NAP_Admin_Calculate_HybridParlay_DBSITE03" SpName="NAP_Admin_Calculate_HybridParlay" DbName="DBSITE03.bodb02.wsv_nap" />
 
     <Setting Key="NAP_Admin_HybridParlay_LegOddsUpd_DBTXN" SpName="NAP_Admin_HybridParlay_LegOddsUpd" DbName="DBTXN.bodb02.wsv_nap" />
     <Setting Key="NAP_Admin_HybridParlay_LegOddsUpd_DBSITE01" SpName="NAP_Admin_HybridParlay_LegOddsUpd" DbName="DBSITE01.bodb02.wsv_nap" />
     <Setting Key="NAP_Admin_HybridParlay_LegOddsUpd_DBSITE02" SpName="NAP_Admin_HybridParlay_LegOddsUpd" DbName="DBSITE02.bodb02.wsv_nap" />
     <Setting Key="NAP_Admin_HybridParlay_LegOddsUpd_DBSITE03" SpName="NAP_Admin_HybridParlay_LegOddsUpd" DbName="DBSITE03.bodb02.wsv_nap" />
+  </Function>
+
+  <Function Name="Common">
+    <Setting Key="NAP_Set_LetstalkMessage_Insert" SpName="NAP_Set_LetstalkMessage_Insert" DbName="DBTXN.bodb02.wsv_nap" />
   </Function>
 </Functions>

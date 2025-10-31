@@ -1,8 +1,8 @@
-﻿using MassTransit;
+﻿using Fanex.Settlement.MessageBridge.JackTime;
+using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Settlement.Consumer.Constants;
-using Settlement.Consumer.Models.JackTimeHybrid;
 
 namespace Settlement.TestPublisher;
 
@@ -23,12 +23,14 @@ class Program
         // Create the specific message with timezone-aware date
         var logDate = new DateTimeOffset(2025, 10, 30, 14, 42, 0, TimeSpan.FromHours(7));
 
-        var message = new HybridMatch(
-            MatchId: 83820770,
-            LogDate: logDate.DateTime,
-            UserId: 0,
-            Action: "CAL"
-        );
+        var message = new HybridMatch
+        {
+            Action = "CAL",
+            MatchId = 83820770,
+            LogDate = logDate.DateTime,
+            UserId = 0
+        };
+
 
         Console.WriteLine("Publishing message:");
         Console.WriteLine($"  MatchId: {message.MatchId}");

@@ -20,7 +20,7 @@
     <PackageReference Include="Fanex.Logging.Extensions.Database" Version="2.0.2.1" />
     <PackageReference Include="Fanex.MailDeliver.MailClient" Version="2.1.0" />
     <PackageReference Include="Fanex.RemotingRef" Version="1.5.5.1" />
-    <PackageReference Include="Fanex.Settlement.MessageBridge" Version="1.0.11" />
+    <PackageReference Include="Fanex.Settlement.MessageBridge" Version="1.0.14" />
     <PackageReference Include="Fanex.SiteDbConnectionManager.Client" Version="1.0.1" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.9" />
     <PackageReference Include="MassTransit" Version="8.5.2" />
