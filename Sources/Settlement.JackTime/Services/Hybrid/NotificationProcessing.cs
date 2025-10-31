@@ -12,20 +12,19 @@ public class NotificationProcessing(IGetNotificationService getNotificationServi
 {
     public async Task ProcessNotifications()
     {
-        // var offset = await repository.GetAsync<int>(new GetOffsetCriteria());
-        var offSet = 1;
+        var offSet = await repository.GetAsync<int>(new GetOffsetCriteria());
         var notifications = await getNotificationService.GetNotifications(offSet);
 
-        await insertHybridParlayLog(notifications, offSet);
+        await insertHybridParlayLog(notifications);
     }
 
-    private async Task insertHybridParlayLog(IEnumerable<Notification> notifications, long offSet)
+    private async Task insertHybridParlayLog(Notification notification)
     {
 
         var criteria = new InsertHybridParlayLogCriteria
         {
-            LegOddsJSON = JsonConvert.SerializeObject(notifications),
-            OffSet = offSet
+            LegOddsJSON = JsonConvert.SerializeObject(notification.Notifications),
+            OffSet = notification.offSet
         };
         await repository.ExecuteAsync(criteria);
     }

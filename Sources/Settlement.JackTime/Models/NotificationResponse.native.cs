@@ -1,4 +1,4 @@
 namespace Settlement.JackTime.Models;
-public record NotificationResponse(Data Data, bool IsSuccessful, string ErrMsg);
+public record NotificationResponse(Notification Data, bool IsSuccessful, string ErrMsg);
 
-public record Data(int offSet, IEnumerable<Notification> Notifications);
+public record Notification(int offSet, IEnumerable<NotificationDetail> Notifications);

@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Settlement.Shared\Settlement.Shared.csproj" />
+    <ProjectReference Include="..\Settlement.JackTime\Settlement.JackTime.csproj" />
   </ItemGroup>
 
 </Project>
