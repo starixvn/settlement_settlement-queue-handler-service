@@ -12,8 +12,9 @@ public class NotificationProcessing(IGetNotificationService getNotificationServi
 {
     public async Task ProcessNotifications()
     {
-        var offSet = await repository.GetAsync<int>(new GetOffsetCriteria());
-        var notifications = await getNotificationService.GetNotifications(offSet);
+        var offSetCriteria = new GetOffsetCriteria();
+        await repository.ExecuteAsync(offSetCriteria);
+        var notifications = await getNotificationService.GetNotifications(offSetCriteria.MaxOffSet);
 
         await insertHybridParlayLog(notifications);
     }
