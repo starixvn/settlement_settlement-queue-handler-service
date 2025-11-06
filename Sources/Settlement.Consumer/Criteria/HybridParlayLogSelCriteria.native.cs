@@ -8,6 +8,8 @@ public class HybridParlayLogSelCriteria : CriteriaBase
 
     public DateTimeOffset LogDate { get; set; }
 
+    public string TransIds { get; set; }
+
     public override string GetSettingKey() => "NAP_Admin_HybridParlayLog_Sel";
 
     public override bool IsValid() => MatchId > 0;

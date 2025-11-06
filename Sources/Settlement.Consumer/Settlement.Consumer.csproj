@@ -15,7 +15,7 @@
     <PackageReference Include="Fanex.MailDeliver.MailClient" Version="2.1.0" />
     <PackageReference Include="Fanex.RemotingRef" Version="1.5.5.1" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Fanex.Settlement.MessageBridge" Version="1.0.14" />
+    <PackageReference Include="Fanex.Settlement.MessageBridge" Version="1.0.15" />
     <PackageReference Include="MassTransit.RabbitMQ" Version="8.5.2" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.9" />
     <PackageReference Include="MassTransit" Version="8.5.2" />

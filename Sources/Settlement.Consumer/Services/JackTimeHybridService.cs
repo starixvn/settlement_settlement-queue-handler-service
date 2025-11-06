@@ -13,7 +13,7 @@ public interface IJackTimeHybridService
 {
     Task ProcessHybridMatch(HybridMatch hybridMatch, bool isUpdateOdds = false);
 
-    Task<List<OddModel>> GetOdds(int matchId, DateTimeOffset logDate);
+    Task<(List<OddModel> odds, List<string> notExistTransIds)> GetOdds(int matchId, DateTimeOffset logDate, string transIds);
 
     Task<bool> UpdateLegOdds(IEnumerable<OddModel> odds, int userId, int matchId);
 
@@ -62,28 +62,31 @@ public class JackTimeHybridService(
         return results.Any(r => r);
     }
 
-    public async Task<List<OddModel>> GetOdds(int matchId, DateTimeOffset logDate)
+    public async Task<(List<OddModel> odds, List<string> notExistTransIds)> GetOdds(int matchId, DateTimeOffset logDate, string transIds)
     {
         var retryPolicy = Policy
-            .HandleResult<IEnumerable<OddModel>>(result => result == null || !result.Any())
+            .HandleResult<(IEnumerable<OddModel> odds, IEnumerable<string> notExistTransIds)>(result => !result.notExistTransIds.Any())
             .WaitAndRetryAsync(
                 RetryCount,
                 retryAttempt => TimeSpan.FromMilliseconds(RetryDelayMilliseconds));
 
-        var odds = await retryPolicy.ExecuteAsync(async () =>
+        var results = await retryPolicy.ExecuteAsync(async () =>
         {
             var criteria = new HybridParlayLogSelCriteria
             {
                 MatchId = matchId,
-                LogDate = logDate
+                LogDate = logDate,
+                TransIds = transIds
             };
-
-            return await repository.FetchAsync<OddModel>(criteria);
+            var result = await repository.FetchAsync<OddModel>(criteria);
+            var invalidTransIds = result.Select(o => o.transIds.ToString()) ?? [];
+            var notExistTransIds = transIds.Split(',').Except(invalidTransIds);
+            return (result ?? [], notExistTransIds);
         });
 
-        return odds.ToList() ?? [];
-    }
 
+        return (results.odds.ToList(), results.notExistTransIds.ToList());
+    }
 
     private async Task<bool> UpdateOdds(string siteName, UpdateLegOddsCriteria criteria)
     {
@@ -91,7 +94,6 @@ public class JackTimeHybridService(
         await repository.ExecuteAsync(criteria);
         return criteria.ErrCode == 0;
     }
-
 
     private async Task<bool> CalculateHybridMatch(CalculateHybridMatchCriteria criteria)
     {
