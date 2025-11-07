@@ -2,4 +2,4 @@ using Newtonsoft.Json;
 
 namespace Settlement.JackTime.Models;
 
-public record NotificationDetail(int MatchId, [JsonProperty("transId")] long BetId, decimal Odds);
+public record NotificationDetail(int MatchId, long TransId, decimal Odds);
