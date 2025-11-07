@@ -17,25 +17,22 @@ public class JackTimeHybridConsumer(
         {
             await LogService.InfoAsync($"JackTime Hybrid Consumer Started: MatchId({context.Message.MatchId})");
             var (odds, notExistTransIds) = await jackTimeHybridService.GetOdds(context.Message.MatchId, context.Message.LogDate, context.Message.TransId);
-            //if (notExistTransIds.Any())
-            //{
-            //    var logId = await hybridLogService.WriteLog(context.Message.MatchId, "No Odds Found");
-            //    await hybridLogService.NotExistLegOdds(context.Message.MatchId, logId, notExistTransIds);
-            //}
+            if (notExistTransIds.Any())
+            {
+                var logId = await hybridLogService.WriteLog(context.Message.MatchId, "No Odds Found");
+                await hybridLogService.NotExistLegOdds(context.Message.MatchId, logId, notExistTransIds);
+            }
 
-            //if (odds.Count == 0)
-            //{
-            //    return;
-            //}
+            if (odds.Count == 0)
+            {
+                return;
+            }
 
             await LogService.InfoAsync($"JackTime Hybrid Consumer Get Odds: MatchId({context.Message.MatchId}) - {JsonConvert.SerializeObject(odds)}");
 
-
             var isUpdateOddSuccessfully = await jackTimeHybridService.UpdateLegOdds(odds, context.Message.UserId, context.Message.MatchId);
 
-
             await LogService.InfoAsync($"JackTime Hybrid Consumer Update Leg Odds: MatchId({context.Message.MatchId}) - {isUpdateOddSuccessfully}");
-
 
             await jackTimeHybridService.ProcessHybridMatch(context.Message, isUpdateOddSuccessfully);
             await LogService.InfoAsync($"JackTime Hybrid Consumer Succeeded: MatchId({context.Message.MatchId})");
@@ -81,4 +78,3 @@ public class JackTimeHybridConsumerDefinition : ConsumerDefinition<JackTimeHybri
         });
     }
 }
-

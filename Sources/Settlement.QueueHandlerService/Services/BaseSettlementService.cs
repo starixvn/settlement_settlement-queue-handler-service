@@ -18,8 +18,6 @@ public abstract class BaseSettlementService(
         var intervalMs = Configuration.GetValue<int>(ServiceIntervalConfigKey, DefaultServiceIntervalMs);
         using PeriodicTimer timer = new(TimeSpan.FromMilliseconds(intervalMs));
 
-        Logger.LogInformation("{ServiceName} background service started.", ServiceName);
-
         while (await timer.WaitForNextTickAsync(stoppingToken))
         {
             await HandleProcessingAsync();

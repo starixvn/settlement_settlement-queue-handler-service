@@ -14,14 +14,14 @@ public class NotificationProcessing(IGetNotificationService getNotificationServi
     {
         var offSetCriteria = new GetOffsetCriteria();
         await repository.ExecuteAsync(offSetCriteria);
+        Console.WriteLine($"Current Offset: {offSetCriteria.MaxOffSet}");
         var notifications = await getNotificationService.GetNotifications(offSetCriteria.MaxOffSet);
-
-        await insertHybridParlayLog(notifications);
+        Console.WriteLine($"End Notifi: {notifications}");
+        await InsertHybridParlayLog(notifications);
     }
 
-    private async Task insertHybridParlayLog(Notification notification)
+    private async Task InsertHybridParlayLog(Notification notification)
     {
-
         var criteria = new InsertHybridParlayLogCriteria
         {
             LegOddsJSON = JsonConvert.SerializeObject(notification.Notifications),

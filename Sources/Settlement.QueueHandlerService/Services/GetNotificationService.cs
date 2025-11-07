@@ -1,5 +1,4 @@
 using ONEbook.UM.Services;
-using Settlement.Shared.Services;
 using Settlement.JackTime.Services.Hybrid;
 
 namespace Settlement.QueueHandlerService.Services;

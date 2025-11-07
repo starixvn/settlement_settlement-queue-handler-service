@@ -18,10 +18,10 @@ public class GetNotificationService(
     public async Task<Notification> GetNotifications(long offSet)
     {
         var jackTimeHybridUrl = options.Value.InternalApiURL + "jacktime-cash-out/notifications";
-        return await callExternalAPI(jackTimeHybridUrl, offSet);
+        return await CallExternalAPI(jackTimeHybridUrl, offSet);
     }
 
-    private async Task<Notification> callExternalAPI(string jackTimeHybridUrl, long offset)
+    private async Task<Notification> CallExternalAPI(string jackTimeHybridUrl, long offset)
     {
         var notificationResponse = await invokeExternalApi.GetAsync<NotificationResponse>(jackTimeHybridUrl + $"/{offset}");
 
