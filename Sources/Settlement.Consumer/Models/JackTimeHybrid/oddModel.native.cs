@@ -1,3 +1,3 @@
 namespace Settlement.Consumer.Models.JackTimeHybrid;
 
-public record OddModel(int MatchId, long transIds, decimal Odds);
+public record OddModel(int MatchId, long TransId, decimal Odds);

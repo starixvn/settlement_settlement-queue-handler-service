@@ -1,5 +1,6 @@
 using Fanex.Data.Repository;
 using Settlement.Consumer.Criteria;
+using Settlement.Shared.Services;
 
 namespace Settlement.Consumer.Services;
 
@@ -14,7 +15,8 @@ public interface IHybridLogService
 
 public class HybridLogService(ILetsTalkService letsTalkService, IDynamicRepository repository) : IHybridLogService
 {
-    private readonly int HybridLogId = 0;
+    private readonly int HybridLogId = 113;
+
     public async Task InvalidLegOdds(int matchId, int LogId, IEnumerable<string> transIds)
     {
         var limitedTransIds = string.Join(", ", transIds.Take(5));

@@ -66,7 +66,7 @@ public class RequestServiceTests
     public async Task GetMarkets_WhenApiFails_ReturnsEmpty()
     {
         // Arrange
-        api.GetAsync<SoccerMarketItem>(Arg.Any<string>()).Returns((SoccerMarketItem)null);
+        api.GetAsync<SoccerMarketItem>(Arg.Any<string>()).Returns((SoccerMarketItem?)null!);
 
         // Act
         var result = await service.GetMarkets(10);

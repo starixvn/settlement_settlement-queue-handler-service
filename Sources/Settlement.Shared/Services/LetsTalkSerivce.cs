@@ -1,5 +1,7 @@
 using Fanex.Data.Repository;
 
+namespace Settlement.Shared.Services;
+
 public interface ILetsTalkService
 {
     Task SendMessage(int matchId, int userId, string actionName, string message);

@@ -11,12 +11,11 @@ namespace Settlement.Consumer.Services;
 
 public interface IJackTimeHybridService
 {
-    Task ProcessHybridMatch(HybridMatch hybridMatch, bool isUpdateOdds = false);
+    Task ProcessHybridMatch(HybridMatch hybridMatch, bool isUpdateOddSuccessfully);
 
     Task<(List<OddModel> odds, List<string> notExistTransIds)> GetOdds(int matchId, DateTimeOffset logDate, string transIds);
 
     Task<bool> UpdateLegOdds(IEnumerable<OddModel> odds, int userId, int matchId);
-
 }
 
 public class JackTimeHybridService(
@@ -54,12 +53,11 @@ public class JackTimeHybridService(
             Creator = userId,
         };
 
-
         var updateOddsTasks = siteDbServer.Select(s => UpdateOdds(s.SiteName, criteria));
 
         var results = await Task.WhenAll(updateOddsTasks);
 
-        return results.Any(r => r);
+        return results.ToList().Exists(r => r);
     }
 
     public async Task<(List<OddModel> odds, List<string> notExistTransIds)> GetOdds(int matchId, DateTimeOffset logDate, string transIds)
@@ -79,11 +77,11 @@ public class JackTimeHybridService(
                 TransIds = transIds
             };
             var result = await repository.FetchAsync<OddModel>(criteria);
-            var invalidTransIds = result.Select(o => o.transIds.ToString()) ?? [];
+            var invalidTransIds = result.Select(o => o.TransId.ToString()) ?? [];
             var notExistTransIds = transIds.Split(',').Except(invalidTransIds);
+
             return (result ?? [], notExistTransIds);
         });
-
 
         return (results.odds.ToList(), results.notExistTransIds.ToList());
     }
@@ -101,4 +99,3 @@ public class JackTimeHybridService(
         return criteria.ErrCode == 0;
     }
 }
-

@@ -3,6 +3,7 @@ using Fanex.Caching.Redis;
 using Settlement.Consumer;
 using Settlement.Consumer.Services;
 using Settlement.Shared;
+using Settlement.Shared.Services;
 using StackExchange.Redis;
 
 namespace Settlement.QueueHandlerService;

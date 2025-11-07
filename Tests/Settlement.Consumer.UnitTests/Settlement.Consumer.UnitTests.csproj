@@ -16,6 +16,8 @@
   <ItemGroup>
     <Compile Include="Services\RequestService.Tests.cs" />
     <Compile Include="Services\SoccerJackTimeService.Tests.cs" />
+    <Compile Include="Services\HybridLogService.Tests.cs" />
+    <Compile Include="Services\JackTimeHybridService.Tests.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -6,9 +6,9 @@ using Settlement.Consumer.Constants;
 
 namespace Settlement.TestPublisher;
 
-class Program
+public static class Program
 {
-    static async Task Main(string[] args)
+    private static async Task Main(string[] args)
     {
         var host = CreateHostBuilder(args).Build();
 
@@ -26,11 +26,10 @@ class Program
         var message = new HybridMatch
         {
             Action = "CAL",
-            MatchId = 83820770,
+            MatchId = 83_820_770,
             LogDate = logDate.DateTime,
             UserId = 0
         };
-
 
         Console.WriteLine("Publishing message:");
         Console.WriteLine($"  MatchId: {message.MatchId}");
@@ -44,7 +43,7 @@ class Program
         Console.ReadKey();
     }
 
-    static IHostBuilder CreateHostBuilder(string[] args) =>
+    private static IHostBuilder CreateHostBuilder(string[] args) =>
         Host.CreateDefaultBuilder(args)
             .ConfigureServices((hostContext, services) =>
             {
@@ -52,7 +51,7 @@ class Program
 
                 services.AddMassTransit(x =>
                 {
-                    x.UsingRabbitMq((context, cfg) =>
+                    x.UsingRabbitMq((_, cfg) =>
                     {
                         var rabbitHost = configuration["RabbitMQ:Host"];
                         var virtualHost = configuration["RabbitMQ:VirtualHost"];
@@ -68,7 +67,7 @@ class Program
                 });
             });
 
-    static async Task PublishMessage(IPublishEndpoint publishEndpoint, HybridMatch message)
+    private static async Task PublishMessage(IPublishEndpoint publishEndpoint, HybridMatch message)
     {
         try
         {

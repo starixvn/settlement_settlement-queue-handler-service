@@ -15,7 +15,6 @@ public class NotificationProcessing(IGetNotificationService getNotificationServi
         var offSetCriteria = new GetOffsetCriteria();
         await repository.ExecuteAsync(offSetCriteria);
         var notifications = await getNotificationService.GetNotifications(offSetCriteria.MaxOffSet);
-        Console.WriteLine($"End Notifi: {JsonConvert.SerializeObject(notifications)}");
         await InsertHybridParlayLog(notifications);
     }
 
