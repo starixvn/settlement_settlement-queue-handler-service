@@ -1,4 +1,3 @@
-
 using Fanex.Data;
 
 namespace Settlement.JackTime.Criteria;
@@ -18,13 +17,7 @@ public class UpdateLegOddsCriteria : INonQueryCommand
 
     public string ErrMsg { get; set; }
 
-    public string GetSettingKey()
-    {
-        return $"NAP_Admin_HybridParlay_LegOddsUpd_{DbServer}";
-    }
+    public string GetSettingKey() => $"NAP_Admin_HybridParlay_LegOddsUpd_{DbServer}";
 
-    public bool IsValid()
-    {
-        return LegOddsJSON.Length > 0;
-    }
+    public bool IsValid() => LegOddsJSON.Length > 0;
 }

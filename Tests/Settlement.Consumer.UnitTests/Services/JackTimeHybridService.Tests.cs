@@ -225,10 +225,7 @@ public class JackTimeHybridServiceTests
         mockRepository.FetchAsync<OddModel>(Arg.Any<HybridParlayLogSelCriteria>())
             .Returns((List<OddModel>?)null!);
 
-        var result = await service.GetOdds(matchId, logDate, transIds);
-
-        Assert.Empty(result.odds);
-        Assert.Equal(2, result.notExistTransIds.Count);
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await service.GetOdds(matchId, logDate, transIds));
     }
 
     [Fact]

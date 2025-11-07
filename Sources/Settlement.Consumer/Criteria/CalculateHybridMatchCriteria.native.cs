@@ -18,13 +18,7 @@ public class CalculateHybridMatchCriteria : INonQueryCommand
 
     public string ErrMsg { get; set; }
 
-    public string GetSettingKey()
-    {
-        return $"NAP_Admin_Calculate_HybridParlay_{DbServer}";
-    }
+    public string GetSettingKey() => $"NAP_Admin_Calculate_HybridParlay_{DbServer}";
 
-    public bool IsValid()
-    {
-        return MatchId > 0;
-    }
+    public bool IsValid() => MatchId > 0;
 }
