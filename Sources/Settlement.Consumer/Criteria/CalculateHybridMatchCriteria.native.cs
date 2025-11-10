@@ -7,6 +7,8 @@ public class CalculateHybridMatchCriteria : INonQueryCommand
 {
     public int MatchId { get; set; }
 
+    public string LegOddsJSON { get; set; }
+
     public int Creator { get; set; }
 
     public string Action { get; set; }

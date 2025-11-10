@@ -34,13 +34,13 @@ public class HybridLogServiceTests
                 criteria.ActionId = expectedActionId;
             });
 
-        var result = await service.WriteLog(matchId, message);
+        var result = await service.WriteLog(matchId);
 
         Assert.Equal(expectedActionId, result);
         await mockRepository.Received(1).ExecuteAsync(
-            Arg.Is<LogCriteria>(c => 
-                c.MatchId == matchId && 
-                c.Remark == message && 
+            Arg.Is<LogCriteria>(c =>
+                c.MatchId == matchId &&
+                c.Remark == message &&
                 c.ActionId == 113));
     }
 
@@ -57,8 +57,8 @@ public class HybridLogServiceTests
             matchId,
             1,
             "Get new Leg Odds",
-            Arg.Is<string>(msg => 
-                msg.Contains(logId.ToString()) && 
+            Arg.Is<string>(msg =>
+                msg.Contains(logId.ToString()) &&
                 msg.Contains("T1, T2, T3, T4, T5") &&
                 !msg.Contains("T6") &&
                 !msg.Contains("T7")));
@@ -77,8 +77,8 @@ public class HybridLogServiceTests
             matchId,
             1,
             "Get new Leg Odds",
-            Arg.Is<string>(msg => 
-                msg.Contains(logId.ToString()) && 
+            Arg.Is<string>(msg =>
+                msg.Contains(logId.ToString()) &&
                 msg.Contains("T1, T2")));
     }
 
@@ -95,8 +95,8 @@ public class HybridLogServiceTests
             matchId,
             1,
             "Get new Leg Odds",
-            Arg.Is<string>(msg => 
-                msg.Contains(logId.ToString()) && 
+            Arg.Is<string>(msg =>
+                msg.Contains(logId.ToString()) &&
                 msg.Contains("invalid Leg Odds") &&
                 msg.Contains("T1, T2, T3, T4, T5") &&
                 !msg.Contains("T6")));
@@ -115,7 +115,7 @@ public class HybridLogServiceTests
             matchId,
             1,
             "Get new Leg Odds",
-            Arg.Is<string>(msg => 
+            Arg.Is<string>(msg =>
                 msg.Contains($"{logId}  - Failed: Cannot settled due to invalid Leg Odds") &&
                 msg.Contains("TransIds: T1")));
     }
@@ -133,9 +133,8 @@ public class HybridLogServiceTests
             matchId,
             1,
             "Get new Leg Odds",
-            Arg.Is<string>(msg => 
+            Arg.Is<string>(msg =>
                 msg.Contains($"{logId} - Failed: Cannot get new Leg odds") &&
                 msg.Contains("TransIds: T1")));
     }
 }
-

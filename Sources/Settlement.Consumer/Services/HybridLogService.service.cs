@@ -10,12 +10,12 @@ public interface IHybridLogService
 
     Task InvalidLegOdds(int matchId, int LogId, IEnumerable<string> transIds);
 
-    Task<int> WriteLog(int matchId, string message);
+    Task<int> WriteLog(int matchId);
 }
 
 public class HybridLogService(ILetsTalkService letsTalkService, IDynamicRepository repository) : IHybridLogService
 {
-    private readonly int HybridLogId = 113;
+    private readonly int HybridLogId = 90433;
 
     public async Task InvalidLegOdds(int matchId, int LogId, IEnumerable<string> transIds)
     {
@@ -31,8 +31,9 @@ public class HybridLogService(ILetsTalkService letsTalkService, IDynamicReposito
         await letsTalkService.SendMessage(matchId, 1, "Get new Leg Odds", message);
     }
 
-    public async Task<int> WriteLog(int matchId, string message)
+    public async Task<int> WriteLog(int matchId)
     {
+        var message = "No Odds Found";
         var criteria = new LogCriteria(matchId, message, HybridLogId);
         await repository.ExecuteAsync(criteria);
         return criteria.ActionId;

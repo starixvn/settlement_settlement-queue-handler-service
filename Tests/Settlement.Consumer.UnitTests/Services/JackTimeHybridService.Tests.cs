@@ -49,11 +49,11 @@ public class JackTimeHybridServiceTests
                 criteria.ErrCode = 0;
             });
 
-        await service.ProcessHybridMatch(hybridMatch, true);
+        await service.ProcessHybridMatch(hybridMatch, new List<OddModel>(), true);
 
         await mockSiteDbClientService.Received(1).GetActiveSiteDbAsync();
         await mockRepository.Received(2).ExecuteAsync(
-            Arg.Is<CalculateHybridMatchCriteria>(c => 
+            Arg.Is<CalculateHybridMatchCriteria>(c =>
                 c.MatchId == hybridMatch.MatchId &&
                 c.Creator == hybridMatch.UserId &&
                 c.Action == hybridMatch.Action &&
@@ -70,7 +70,7 @@ public class JackTimeHybridServiceTests
             Action = "TestAction"
         };
 
-        await service.ProcessHybridMatch(hybridMatch, false);
+        await service.ProcessHybridMatch(hybridMatch, [], false);
 
         await mockSiteDbClientService.DidNotReceive().GetActiveSiteDbAsync();
         await mockRepository.DidNotReceive().ExecuteAsync(Arg.Any<CalculateHybridMatchCriteria>());
@@ -114,7 +114,7 @@ public class JackTimeHybridServiceTests
 
         Assert.True(result);
         await mockRepository.Received(2).ExecuteAsync(
-            Arg.Is<UpdateLegOddsCriteria>(c => 
+            Arg.Is<UpdateLegOddsCriteria>(c =>
                 c.MatchId == matchId &&
                 c.Creator == userId &&
                 !string.IsNullOrEmpty(c.LegOddsJSON)));
@@ -169,7 +169,7 @@ public class JackTimeHybridServiceTests
         var result = await service.GetOdds(matchId, logDate, transIds);
 
         Assert.Equal(3, result.odds.Count);
-        Assert.Empty(result.notExistTransIds);
+        Assert.Empty(result.transIdsInvalid);
     }
 
     [Fact]
@@ -190,9 +190,9 @@ public class JackTimeHybridServiceTests
         var result = await service.GetOdds(matchId, logDate, transIds);
 
         Assert.Equal(2, result.odds.Count);
-        Assert.Equal(2, result.notExistTransIds.Count);
-        Assert.Contains("3", result.notExistTransIds);
-        Assert.Contains("4", result.notExistTransIds);
+        Assert.Equal(2, result.transIdsInvalid.Count);
+        Assert.Contains("3", result.transIdsInvalid);
+        Assert.Contains("4", result.transIdsInvalid);
     }
 
     [Fact]
@@ -209,10 +209,10 @@ public class JackTimeHybridServiceTests
         var result = await service.GetOdds(matchId, logDate, transIds);
 
         Assert.Empty(result.odds);
-        Assert.Equal(3, result.notExistTransIds.Count);
-        Assert.Contains("1", result.notExistTransIds);
-        Assert.Contains("2", result.notExistTransIds);
-        Assert.Contains("3", result.notExistTransIds);
+        Assert.Equal(3, result.transIdsInvalid.Count);
+        Assert.Contains("1", result.transIdsInvalid);
+        Assert.Contains("2", result.transIdsInvalid);
+        Assert.Contains("3", result.transIdsInvalid);
     }
 
     [Fact]
@@ -257,11 +257,10 @@ public class JackTimeHybridServiceTests
         await service.UpdateLegOdds(odds, userId, matchId);
 
         await mockRepository.Received().ExecuteAsync(
-            Arg.Is<UpdateLegOddsCriteria>(c => 
+            Arg.Is<UpdateLegOddsCriteria>(c =>
                 !string.IsNullOrEmpty(c.LegOddsJSON) &&
                 c.LegOddsJSON.Contains("123") &&
                 c.LegOddsJSON.Contains("1.5") &&
                 c.LegOddsJSON.Contains("2.0")));
     }
 }
-
