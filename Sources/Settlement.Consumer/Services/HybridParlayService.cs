@@ -84,7 +84,7 @@ public class HybridParlayServiceImp(
             var tasks = siteDbServer.Select(s => UpdateOddsAndSettleBySiteDb(hybridMatch, odds, s.SiteName));
 
             var results = await Task.WhenAll(tasks);
-            var listTransIds = results.SelectMany(r => r).ToList();
+            var listTransIds = results.SelectMany(r => r).Distinct().ToList();
 
             if (listTransIds.Count > 0)
             {
@@ -96,29 +96,21 @@ public class HybridParlayServiceImp(
     private async Task<List<string>> UpdateOddsAndSettleBySiteDb(HybridMatch hybridMatch, IEnumerable<OddModel> odds, string siteName)
     {
         var (result, affectedTransIds) = await oddsService.UpdateOdds(odds, siteName, hybridMatch.UserId, hybridMatch.MatchId);
-        if (result.IsSuccessful)
-        {
-            if (string.IsNullOrEmpty(affectedTransIds))
-            {
-                return [.. odds.Select(o => o.TransId.ToString())];
-            }
-            else
-            {
-                await CalculateHybridMatch(hybridMatch, siteName, affectedTransIds);
-
-                var invalidTransIds = GetTransIdsNotInAffected(odds, affectedTransIds);
-                if (invalidTransIds.Count > 0)
-                {
-                    return invalidTransIds;
-                }
-
-                return [];
-            }
-        }
-        else
+        
+        if (!result.IsSuccessful)
         {
             return [.. odds.Select(o => o.TransId.ToString())];
         }
+
+        if (string.IsNullOrEmpty(affectedTransIds))
+        {
+            return [.. odds.Select(o => o.TransId.ToString())];
+        }
+
+        await CalculateHybridMatch(hybridMatch, siteName, affectedTransIds);
+
+        var invalidTransIds = GetTransIdsNotInAffected(odds, affectedTransIds);
+        return invalidTransIds;
     }
 
     private static List<string> GetTransIdsNotInAffected(IEnumerable<OddModel> odds, string affectedTransIds)

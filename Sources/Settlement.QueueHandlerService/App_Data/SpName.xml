@@ -12,9 +12,9 @@
 	</Function>
 
 	<Function Name="HybridParlay">
-		<Setting Key="NAP_Admin_HybridParlayLog_Ins" SpName="NAP_Admin_HybridParlayLog_Ins" DbName="DBLOG.bodb_CustomerLog.wsv_nap" />
-		<Setting Key="NAP_Admin_HybridParlayLogOffset_Sel" SpName="NAP_Admin_HybridParlayLogOffset_Sel" DbName="DBLOG.bodb_CustomerLog.wsv_nap" />
-		<Setting Key="NAP_Admin_HybridParlayLog_Sel" SpName="NAP_Admin_HybridParlayLog_Sel" DbName="DBLOG.bodb_CustomerLog.wsv_nap" />
+		<Setting Key="NAP_Admin_HybridParlayLog_Ins" SpName="NAP_Admin_HybridParlayLog_Ins" DbName="DBTXN.bodb02.wsv_nap" />
+		<Setting Key="NAP_Admin_HybridParlayLogOffset_Sel" SpName="NAP_Admin_HybridParlayLogOffset_Sel" DbName="DBTXN.bodb02.wsv_nap" />
+		<Setting Key="NAP_Admin_HybridParlayLog_Sel" SpName="NAP_Admin_HybridParlayLog_Sel" DbName="DBTXN.bodb02.wsv_nap" />
 
 		<Setting Key="NAP_Admin_Calculate_HybridParlay_DBTXN" SpName="NAP_Admin_Calculate_HybridParlay" DbName="DBTXN.bodb02.wsv_nap" />
 		<Setting Key="NAP_Admin_Calculate_HybridParlay_DBSITE01" SpName="NAP_Admin_Calculate_HybridParlay" DbName="DBSITE01.bodb02.wsv_nap" />

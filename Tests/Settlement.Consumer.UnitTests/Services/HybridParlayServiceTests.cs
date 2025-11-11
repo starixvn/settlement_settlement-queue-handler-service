@@ -288,7 +288,7 @@ public class JackTimeHybridServiceTests
         await mockOddsService.Received(2).UpdateOdds(odds, Arg.Any<string>(), hybridMatch.UserId, hybridMatch.MatchId);
         await mockHybridLogService.Received(1).InvalidLegOdds(
             hybridMatch,
-            Arg.Is<List<string>>(list => list.Count == 2 && list.Contains("1")));
+            Arg.Is<List<string>>(list => list.Count == 1 && list.Contains("1")));
     }
 
     [Fact]

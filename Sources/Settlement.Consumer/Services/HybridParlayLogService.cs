@@ -1,4 +1,5 @@
 using Fanex.Settlement.MessageBridge.JackTime;
+using Settlement.Consumer.Constants;
 using Settlement.Consumer.Criteria;
 using Settlement.Shared.Services;
 
@@ -22,8 +23,8 @@ public class HybridParlayLogServiceImp(ILetsTalkService letsTalkService, IDynami
         if (transIds.Count > 0)
         {
             await WriteLog(hybridMatch.MatchId);
-            var message = $"Failed: Cannot get new Leg odds, so some of the following TransIds might not be settled.{Environment.NewLine}TransIds: {string.Join(", ", transIds)}";
-            await letsTalkService.SendMessage(hybridMatch.MatchId, hybridMatch.UserId, ActionName, message);
+            var message = $"Failed: Cannot get new Leg odds, some of the following TransIds might not be settled.{Environment.NewLine}TransIds: {string.Join(", ", transIds)}";
+            await letsTalkService.SendMessage(hybridMatch.MatchId, hybridMatch.UserId, ActionName, message, MessageGroup.HybridParlay);
         }
     }
 
@@ -37,6 +38,6 @@ public class HybridParlayLogServiceImp(ILetsTalkService letsTalkService, IDynami
     public async Task InvalidLegOdds(HybridMatch hybridMatch, List<string> transIds)
     {
         var message = $"Failed: Cannot settled due to invalid Leg Odds(Leg Odds > Placed Leg Odds).{Environment.NewLine}TransIds: {string.Join(", ", transIds)}";
-        await letsTalkService.SendMessage(hybridMatch.MatchId, hybridMatch.UserId, ActionName, message);
+        await letsTalkService.SendMessage(hybridMatch.MatchId, hybridMatch.UserId, ActionName, message, MessageGroup.HybridParlay);
     }
 }

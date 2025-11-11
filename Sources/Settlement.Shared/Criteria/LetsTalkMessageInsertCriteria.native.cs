@@ -2,7 +2,7 @@ using Fanex.Data.Repository;
 
 public class LetsTalkMessageInsertCriteria : NonQueryCommand
 {
-    public int MessageGroupId => 2;
+    public int MessageGroupId { get; set; }
 
     public string MessageType => "Reminder";
 

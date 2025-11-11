@@ -119,6 +119,3 @@ public class RequestServiceTests
         Assert.Contains(req.Markets, m => m.Market.BetType == 2 && m.WayScores.Any(ws => ws.Id == 9 && ws.Outcome == 0));
     }
 }
-
-
-
