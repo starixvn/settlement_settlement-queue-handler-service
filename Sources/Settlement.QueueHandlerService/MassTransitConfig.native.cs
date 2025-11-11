@@ -14,7 +14,7 @@ public static class MassTransitConfig
         services.AddMassTransit(busConfigurator =>
         {
             busConfigurator.AddConsumer<SoccerJackTimeConsumer, MyConsumerDefinition>();
-            busConfigurator.AddConsumer<JackTimeHybridConsumer, JackTimeHybridConsumerDefinition>();
+            busConfigurator.AddConsumer<HybridParlayConsumer, JackTimeHybridConsumerDefinition>();
 
             busConfigurator.UsingRabbitMq((context, busFactoryConfigurator) =>
             {

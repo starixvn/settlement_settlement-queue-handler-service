@@ -1,0 +1,325 @@
+using Fanex.Data.Repository;
+using Fanex.Settlement.MessageBridge.JackTime;
+using Fanex.SiteDbConnectionManager.Client.Models;
+using Fanex.SiteDbConnectionManager.Client.Services;
+using NSubstitute;
+using Settlement.Consumer.Criteria;
+using Settlement.Consumer.Models.JackTimeHybrid;
+using Settlement.Consumer.Services;
+using Settlement.JackTime.Criteria;
+using Settlement.Shared.Models;
+using Xunit;
+
+namespace Settlement.Consumer.UnitTests.Services;
+
+public class JackTimeHybridServiceTests
+{
+    private readonly IDynamicRepository mockRepository;
+    private readonly SiteDbClientService mockSiteDbClientService;
+    private readonly OddsService mockOddsService;
+    private readonly HybridParlayLogService mockHybridLogService;
+    private readonly HybridParlayServiceImp service;
+
+    public JackTimeHybridServiceTests()
+    {
+        mockRepository = Substitute.For<IDynamicRepository>();
+        mockSiteDbClientService = Substitute.For<SiteDbClientService>();
+        mockOddsService = Substitute.For<OddsService>();
+        mockHybridLogService = Substitute.For<HybridParlayLogService>();
+        service = new HybridParlayServiceImp(mockRepository, mockSiteDbClientService, mockOddsService, mockHybridLogService);
+    }
+
+    [Fact]
+    public async Task GetOddsAndInvalidTransId_WhenAllTransIdsExist_ShouldReturnOddsAndEmptyInvalidList()
+    {
+        var matchId = 123;
+        var logDate = DateTimeOffset.Now;
+        var transIds = "1,2,3";
+        var odds = new List<OddModel>
+        {
+            new(matchId, 1, 1.5m),
+            new(matchId, 2, 2.0m),
+            new(matchId, 3, 2.5m)
+        };
+
+        mockOddsService.GetOdds(matchId, logDate, transIds)
+            .Returns(odds);
+
+        var result = await service.GetOddsAndInvalidTransId(matchId, logDate, transIds);
+
+        Assert.Equal(3, result.Odds.Count);
+        Assert.Empty(result.InvalidTransId);
+    }
+
+    [Fact]
+    public async Task GetOddsAndInvalidTransId_WhenSomeTransIdsNotExist_ShouldReturnOddsAndInvalidTransIds()
+    {
+        var matchId = 123;
+        var logDate = DateTimeOffset.Now;
+        var transIds = "1,2,3,4";
+        var odds = new List<OddModel>
+        {
+            new(matchId, 1, 1.5m),
+            new(matchId, 2, 2.0m)
+        };
+
+        mockOddsService.GetOdds(matchId, logDate, transIds)
+            .Returns(odds);
+
+        var result = await service.GetOddsAndInvalidTransId(matchId, logDate, transIds);
+
+        Assert.Equal(2, result.Odds.Count);
+        Assert.Equal(2, result.InvalidTransId.Count);
+        Assert.Contains("3", result.InvalidTransId);
+        Assert.Contains("4", result.InvalidTransId);
+    }
+
+    [Fact]
+    public async Task GetOddsAndInvalidTransId_WhenNoOddsFound_ShouldReturnEmptyOddsAndAllTransIds()
+    {
+        var matchId = 123;
+        var logDate = DateTimeOffset.Now;
+        var transIds = "1,2,3";
+        var emptyOdds = new List<OddModel>();
+
+        mockOddsService.GetOdds(matchId, logDate, transIds)
+            .Returns(emptyOdds);
+
+        var result = await service.GetOddsAndInvalidTransId(matchId, logDate, transIds);
+
+        Assert.Empty(result.Odds);
+        Assert.Equal(3, result.InvalidTransId.Count);
+        Assert.Contains("1", result.InvalidTransId);
+        Assert.Contains("2", result.InvalidTransId);
+        Assert.Contains("3", result.InvalidTransId);
+    }
+
+    [Fact]
+    public async Task GetOddsAndInvalidTransId_WhenTransIdsHaveSpaces_ShouldTrimAndProcessCorrectly()
+    {
+        var matchId = 123;
+        var logDate = DateTimeOffset.Now;
+        var transIds = "1, 2 , 3";
+        var odds = new List<OddModel>
+        {
+            new(matchId, 1, 1.5m),
+            new(matchId, 2, 2.0m)
+        };
+
+        mockOddsService.GetOdds(matchId, logDate, transIds)
+            .Returns(odds);
+
+        var result = await service.GetOddsAndInvalidTransId(matchId, logDate, transIds);
+
+        Assert.Equal(2, result.Odds.Count);
+        Assert.Single(result.InvalidTransId);
+        Assert.Contains("3", result.InvalidTransId);
+    }
+
+    [Fact]
+    public async Task UpdateOddsAndSettle_WhenUpdateSuccessfulAndAffectedTransIdsEmpty_ShouldReturnAllTransIds()
+    {
+        var hybridMatch = new HybridMatch
+        {
+            MatchId = 123,
+            UserId = 456,
+            Action = "TestAction"
+        };
+        var odds = new List<OddModel>
+        {
+            new(123, 1, 1.5m),
+            new(123, 2, 2.0m)
+        };
+        var siteDbServers = new List<SiteDb>
+        {
+            new() { SiteName = "Server1", SiteDbGroupId = 1 }
+        };
+
+        mockSiteDbClientService.GetActiveSiteDbAsync()
+            .Returns(siteDbServers);
+
+        var successResult = new Result(0, string.Empty);
+        mockOddsService.UpdateOdds(odds, "Server1", hybridMatch.UserId, hybridMatch.MatchId)
+            .Returns((successResult, string.Empty));
+
+        await service.UpdateOddsAndSettle(hybridMatch, odds);
+
+        await mockHybridLogService.Received(1).InvalidLegOdds(
+            hybridMatch,
+            Arg.Is<List<string>>(list => list.Count == 2 && list.Contains("1") && list.Contains("2")));
+    }
+
+    [Fact]
+    public async Task UpdateOddsAndSettle_WhenUpdateSuccessfulWithAffectedTransIds_ShouldCalculateAndReturnInvalidTransIds()
+    {
+        var hybridMatch = new HybridMatch
+        {
+            MatchId = 123,
+            UserId = 456,
+            Action = "TestAction"
+        };
+        var odds = new List<OddModel>
+        {
+            new(123, 1, 1.5m),
+            new(123, 2, 2.0m),
+            new(123, 3, 2.5m)
+        };
+        var siteDbServers = new List<SiteDb>
+        {
+            new() { SiteName = "Server1", SiteDbGroupId = 1 }
+        };
+
+        mockSiteDbClientService.GetActiveSiteDbAsync()
+            .Returns(siteDbServers);
+
+        var successResult = new Result(0, string.Empty);
+        mockOddsService.UpdateOdds(odds, "Server1", hybridMatch.UserId, hybridMatch.MatchId)
+            .Returns((successResult, "1,2"));
+
+        await service.UpdateOddsAndSettle(hybridMatch, odds);
+
+        await mockRepository.Received(1).ExecuteAsync(
+            Arg.Is<CalculateHybridMatchCriteria>(c =>
+                c.MatchId == hybridMatch.MatchId &&
+                c.Creator == hybridMatch.UserId &&
+                c.Action == hybridMatch.Action &&
+                c.TransIds == "1,2" &&
+                c.DbServer == "Server1"));
+
+        await mockHybridLogService.Received(1).InvalidLegOdds(
+            hybridMatch,
+            Arg.Is<List<string>>(list => list.Count == 1 && list.Contains("3")));
+    }
+
+    [Fact]
+    public async Task UpdateOddsAndSettle_WhenUpdateSuccessfulWithAllAffectedTransIds_ShouldNotCallInvalidLegOdds()
+    {
+        var hybridMatch = new HybridMatch
+        {
+            MatchId = 123,
+            UserId = 456,
+            Action = "TestAction"
+        };
+        var odds = new List<OddModel>
+        {
+            new(123, 1, 1.5m),
+            new(123, 2, 2.0m)
+        };
+        var siteDbServers = new List<SiteDb>
+        {
+            new() { SiteName = "Server1", SiteDbGroupId = 1 }
+        };
+
+        mockSiteDbClientService.GetActiveSiteDbAsync()
+            .Returns(siteDbServers);
+
+        var successResult = new Result(0, string.Empty);
+        mockOddsService.UpdateOdds(odds, "Server1", hybridMatch.UserId, hybridMatch.MatchId)
+            .Returns((successResult, "1,2"));
+
+        await service.UpdateOddsAndSettle(hybridMatch, odds);
+
+        await mockRepository.Received(1).ExecuteAsync(Arg.Any<CalculateHybridMatchCriteria>());
+        await mockHybridLogService.DidNotReceive().InvalidLegOdds(Arg.Any<HybridMatch>(), Arg.Any<List<string>>());
+    }
+
+    [Fact]
+    public async Task UpdateOddsAndSettle_WhenUpdateFails_ShouldReturnAllTransIds()
+    {
+        var hybridMatch = new HybridMatch
+        {
+            MatchId = 123,
+            UserId = 456,
+            Action = "TestAction"
+        };
+        var odds = new List<OddModel>
+        {
+            new(123, 1, 1.5m),
+            new(123, 2, 2.0m)
+        };
+        var siteDbServers = new List<SiteDb>
+        {
+            new() { SiteName = "Server1", SiteDbGroupId = 1 }
+        };
+
+        mockSiteDbClientService.GetActiveSiteDbAsync()
+            .Returns(siteDbServers);
+
+        var failResult = new Result(1, "Error message");
+        mockOddsService.UpdateOdds(odds, "Server1", hybridMatch.UserId, hybridMatch.MatchId)
+            .Returns((failResult, string.Empty));
+
+        await service.UpdateOddsAndSettle(hybridMatch, odds);
+
+        await mockRepository.DidNotReceive().ExecuteAsync(Arg.Any<CalculateHybridMatchCriteria>());
+        await mockHybridLogService.Received(1).InvalidLegOdds(
+            hybridMatch,
+            Arg.Is<List<string>>(list => list.Count == 2 && list.Contains("1") && list.Contains("2")));
+    }
+
+    [Fact]
+    public async Task UpdateOddsAndSettle_WhenMultipleSiteDbs_ShouldProcessAllAndCallInvalidLegOddsOnce()
+    {
+        var hybridMatch = new HybridMatch
+        {
+            MatchId = 123,
+            UserId = 456,
+            Action = "TestAction"
+        };
+        var odds = new List<OddModel>
+        {
+            new(123, 1, 1.5m)
+        };
+        var siteDbServers = new List<SiteDb>
+        {
+            new() { SiteName = "Server1", SiteDbGroupId = 1 },
+            new() { SiteName = "Server2", SiteDbGroupId = 2 }
+        };
+
+        mockSiteDbClientService.GetActiveSiteDbAsync()
+            .Returns(siteDbServers);
+
+        var successResult = new Result(0, string.Empty);
+        mockOddsService.UpdateOdds(odds, Arg.Any<string>(), hybridMatch.UserId, hybridMatch.MatchId)
+            .Returns((successResult, string.Empty));
+
+        await service.UpdateOddsAndSettle(hybridMatch, odds);
+
+        await mockOddsService.Received(2).UpdateOdds(odds, Arg.Any<string>(), hybridMatch.UserId, hybridMatch.MatchId);
+        await mockHybridLogService.Received(1).InvalidLegOdds(
+            hybridMatch,
+            Arg.Is<List<string>>(list => list.Count == 2 && list.Contains("1")));
+    }
+
+    [Fact]
+    public async Task GetHyBridTransId_ShouldReturnCommaSeparatedTransIds()
+    {
+        var matchId = 123;
+        var siteDbServers = new List<SiteDb>
+        {
+            new() { SiteName = "Server1", SiteDbGroupId = 1 }
+        };
+
+        mockSiteDbClientService.GetActiveSiteDbAsync()
+            .Returns(siteDbServers);
+
+        var tranInfos = new List<TranInfo>
+        {
+            new() { TransId = "1" },
+            new() { TransId = "2" },
+            new() { TransId = "3" }
+        };
+
+        mockRepository.FetchAsync<TranInfo>(Arg.Any<HyBridValidateCriteria>())
+            .Returns(tranInfos)
+            .AndDoes(callInfo =>
+            {
+                var criteria = callInfo.Arg<HyBridValidateCriteria>();
+                criteria.ErrCode = 0;
+            });
+
+        var result = await service.GetHyBridTransId(matchId);
+
+        Assert.Equal("1,2,3", result);
+    }
+}

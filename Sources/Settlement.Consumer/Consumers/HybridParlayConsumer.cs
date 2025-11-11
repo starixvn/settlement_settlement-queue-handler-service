@@ -8,37 +8,30 @@ using System.Data;
 
 namespace Settlement.Consumer.Consumers;
 
-public class JackTimeHybridConsumer(
-    IJackTimeHybridService jackTimeHybridService, IHybridLogService hybridLogService) : IConsumer<HybridMatch>
+public class HybridParlayConsumer(
+    HybridParlayService hybridParlayService,
+    HybridParlayLogService hybridParlayLogService) : IConsumer<HybridMatch>
 {
     public async Task Consume(ConsumeContext<HybridMatch> context)
     {
         try
         {
-            await LogService.InfoAsync($"JackTime Hybrid Consumer Started: MatchId({context.Message.MatchId})");
+            var hybridMatch = context.Message;
+            var matchId = context.Message.MatchId;
 
-            var transId = await jackTimeHybridService.GetHyBridTransId(context.Message.MatchId);
-            if (string.IsNullOrEmpty(transId))
+            await LogService.InfoAsync($"JackTime Hybrid Consumer Started: MatchId({matchId})");
+
+            var transId = await hybridParlayService.GetHyBridTransId(matchId);
+            if (!string.IsNullOrEmpty(transId))
             {
-                return;
+                var (Odds, InvalidTransId) = await hybridParlayService.GetOddsAndInvalidTransId(matchId, hybridMatch.LogDate, transId);
+
+                await hybridParlayLogService.InvalidTransId(hybridMatch, InvalidTransId);
+
+                await LogService.InfoAsync($"JackTime Hybrid Consumer Get Odds: MatchId({matchId}) - {JsonConvert.SerializeObject(Odds)}");
+
+                await hybridParlayService.UpdateOddsAndSettle(hybridMatch, Odds);
             }
-
-            var (odds, transIdsInvalid) = await jackTimeHybridService.GetOdds(context.Message.MatchId, context.Message.LogDate, transId);
-            if (transIdsInvalid.Count > 0)
-            {
-                var logId = await hybridLogService.WriteLog(context.Message.MatchId);
-                await hybridLogService.NotExistLegOdds(context.Message.MatchId, logId, transIdsInvalid);
-            }
-
-            if (odds.Count == 0)
-            {
-                return;
-            }
-
-            await LogService.InfoAsync($"JackTime Hybrid Consumer Get Odds: MatchId({context.Message.MatchId}) - {JsonConvert.SerializeObject(odds)}");
-            var isUpdateOddSuccessfully = await jackTimeHybridService.UpdateLegOdds(odds, context.Message.UserId, context.Message.MatchId);
-
-            await jackTimeHybridService.ProcessHybridMatch(context.Message, odds, isUpdateOddSuccessfully);
         }
         catch (Exception e)
         {
@@ -47,7 +40,7 @@ public class JackTimeHybridConsumer(
     }
 }
 
-public class JackTimeHybridConsumerDefinition : ConsumerDefinition<JackTimeHybridConsumer>
+public class JackTimeHybridConsumerDefinition : ConsumerDefinition<HybridParlayConsumer>
 {
     private const int RetryInterval = 5000;
     private const int RetryCount = 3;
@@ -61,7 +54,7 @@ public class JackTimeHybridConsumerDefinition : ConsumerDefinition<JackTimeHybri
 
     protected override void ConfigureConsumer(
         IReceiveEndpointConfigurator endpointConfigurator,
-        IConsumerConfigurator<JackTimeHybridConsumer> consumerConfigurator,
+        IConsumerConfigurator<HybridParlayConsumer> consumerConfigurator,
         IRegistrationContext context)
     {
         if (endpointConfigurator is not IRabbitMqReceiveEndpointConfigurator rmq)

@@ -14,10 +14,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="Services\RequestService.Tests.cs" />
-    <Compile Include="Services\SoccerJackTimeService.Tests.cs" />
-    <Compile Include="Services\HybridLogService.Tests.cs" />
-    <Compile Include="Services\JackTimeHybridService.Tests.cs" />
+    <Compile Include="Services\RequestServiceTests.cs" />
+    <Compile Include="Services\SoccerJackTimeServiceTests.cs" />
+    <Compile Include="Services\HybridParlayLogServiceTests.cs" />
+    <Compile Include="Services\HybridParlayServiceTests.cs" />
+    <Compile Include="Services\OddsServiceTests.cs" />
   </ItemGroup>
 
   <ItemGroup>

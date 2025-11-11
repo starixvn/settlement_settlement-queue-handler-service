@@ -1,5 +1,4 @@
 using Fanex.Data;
-using Fanex.Data.Repository;
 
 namespace Settlement.Consumer.Criteria;
 
@@ -7,7 +6,7 @@ public class CalculateHybridMatchCriteria : INonQueryCommand
 {
     public int MatchId { get; set; }
 
-    public string LegOddsJSON { get; set; }
+    public string TransIds { get; set; }
 
     public int Creator { get; set; }
 

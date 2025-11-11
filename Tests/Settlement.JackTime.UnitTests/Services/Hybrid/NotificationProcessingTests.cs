@@ -1,7 +1,5 @@
 using Fanex.Data.Repository;
-using FluentAssertions;
 using NSubstitute;
-using Settlement.JackTime.Criteria;
 using Settlement.JackTime.Models;
 using Settlement.JackTime.Services.Hybrid;
 using Xunit;
@@ -35,18 +33,15 @@ public class NotificationProcessingTests
         );
 
         mockRepository.ExecuteAsync(Arg.Any<GetOffsetCriteria>())
-            .Returns(Task.CompletedTask)
-            .AndDoes(callInfo =>
+            .Returns(callInfo =>
             {
                 var criteria = callInfo.Arg<GetOffsetCriteria>();
                 criteria.MaxOffSet = (int)maxOffset;
+                return Task.FromResult(0);
             });
 
         mockGetNotificationService.GetNotifications(maxOffset)
             .Returns(notification);
-
-        mockRepository.ExecuteAsync(Arg.Any<InsertHybridParlayLogCriteria>())
-            .Returns(Task.CompletedTask);
 
         await service.ProcessNotifications();
 
@@ -67,11 +62,11 @@ public class NotificationProcessingTests
         var maxOffset = 100L;
 
         mockRepository.ExecuteAsync(Arg.Any<GetOffsetCriteria>())
-            .Returns(Task.CompletedTask)
-            .AndDoes(callInfo =>
+            .Returns(callInfo =>
             {
                 var criteria = callInfo.Arg<GetOffsetCriteria>();
                 criteria.MaxOffSet = (int)maxOffset;
+                return Task.FromResult(0);
             });
 
         mockGetNotificationService.GetNotifications(maxOffset)
@@ -89,18 +84,15 @@ public class NotificationProcessingTests
         var notification = new Notification((int)maxOffset, new List<NotificationDetail>());
 
         mockRepository.ExecuteAsync(Arg.Any<GetOffsetCriteria>())
-            .Returns(Task.CompletedTask)
-            .AndDoes(callInfo =>
+            .Returns(callInfo =>
             {
                 var criteria = callInfo.Arg<GetOffsetCriteria>();
                 criteria.MaxOffSet = (int)maxOffset;
+                return Task.FromResult(0);
             });
 
         mockGetNotificationService.GetNotifications(maxOffset)
             .Returns(notification);
-
-        mockRepository.ExecuteAsync(Arg.Any<InsertHybridParlayLogCriteria>())
-            .Returns(Task.CompletedTask);
 
         await service.ProcessNotifications();
 
@@ -126,18 +118,15 @@ public class NotificationProcessingTests
         );
 
         mockRepository.ExecuteAsync(Arg.Any<GetOffsetCriteria>())
-            .Returns(Task.CompletedTask)
-            .AndDoes(callInfo =>
+            .Returns(callInfo =>
             {
                 var criteria = callInfo.Arg<GetOffsetCriteria>();
                 criteria.MaxOffSet = (int)maxOffset;
+                return Task.FromResult(0);
             });
 
         mockGetNotificationService.GetNotifications(maxOffset)
             .Returns(notification);
-
-        mockRepository.ExecuteAsync(Arg.Any<InsertHybridParlayLogCriteria>())
-            .Returns(Task.CompletedTask);
 
         await service.ProcessNotifications();
 
@@ -161,19 +150,16 @@ public class NotificationProcessingTests
 
         var callCount = 0;
         mockRepository.ExecuteAsync(Arg.Any<GetOffsetCriteria>())
-            .Returns(Task.CompletedTask)
-            .AndDoes(callInfo =>
+            .Returns(callInfo =>
             {
                 var criteria = callInfo.Arg<GetOffsetCriteria>();
                 criteria.MaxOffSet = callCount == 0 ? (int)maxOffset1 : (int)maxOffset2;
                 callCount++;
+                return Task.FromResult(0);
             });
 
         mockGetNotificationService.GetNotifications(Arg.Any<long>())
             .Returns(notification1, notification2);
-
-        mockRepository.ExecuteAsync(Arg.Any<InsertHybridParlayLogCriteria>())
-            .Returns(Task.CompletedTask);
 
         await service.ProcessNotifications();
         await service.ProcessNotifications();
@@ -182,4 +168,3 @@ public class NotificationProcessingTests
         await mockGetNotificationService.Received(1).GetNotifications(maxOffset2);
     }
 }
-

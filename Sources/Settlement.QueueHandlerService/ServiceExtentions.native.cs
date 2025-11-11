@@ -24,9 +24,10 @@ public static class ServiceExtensions
         services.AddSingleton<ICacheService, CacheService>();
         services.AddSingleton<IRequestService, RequestService>();
         services.AddSingleton<ISoccerJackTimeService, SoccerJackTimeService>();
-        services.AddSingleton<IJackTimeHybridService, JackTimeHybridService>();
+        services.AddSingleton<HybridParlayService, HybridParlayServiceImp>();
         services.AddSingleton<ILetsTalkService, LetsTalkService>();
-        services.AddSingleton<IHybridLogService, HybridLogService>();
+        services.AddSingleton<HybridParlayLogService, HybridParlayLogServiceImp>();
+        services.AddSingleton<OddsService, OddsServiceImp>();
     }
 
     public static void AddRedisCacheConfig(this IServiceCollection services, IConfiguration configuration)

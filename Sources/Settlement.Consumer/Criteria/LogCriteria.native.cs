@@ -1,30 +1,18 @@
-﻿using Fanex.Data.Repository;
+﻿namespace Settlement.Consumer.Criteria;
 
-namespace Settlement.Consumer.Criteria;
-public class LogCriteria : NonQueryCommand
+public class LogCriteria(int matchId, string errorMessage, int actionId) : NonQueryCommand
 {
-
-    public LogCriteria(int matchId, string errorMessage, int actionId)
-    {
-        Remark = errorMessage;
-        ActionId = actionId;
-        MatchId = matchId;
-    }
-
-    public LogCriteria()
-    {
-    }
-
     public int UserId { get; set; } = 0;
 
-    public int? MatchId { get; set; }
+    public int? MatchId { get; set; } = matchId;
 
-    public string Remark { get; set; }
+    public string Remark { get; set; } = errorMessage;
+
     public string RemarkJson { get; set; }
 
     public string Ip => string.Empty;
 
-    public int ActionId { get; set; }
+    public int ActionId { get; set; } = actionId;
 
     public override bool IsValid() => true;
 
