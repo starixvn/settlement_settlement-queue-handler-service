@@ -1,12 +1,11 @@
 ﻿using Fanex.Logging;
-using Fanex.Logging;
 using Fanex.Settlement.MessageBridge.JackTime.Constants;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Settlement.Shared.Models;
 using Settlement.Shared.Services;
 
-namespace Settlement.JackTime.Services;
+namespace Settlement.JackTime.Services.JackTime;
 
 public interface IRequestService
 {

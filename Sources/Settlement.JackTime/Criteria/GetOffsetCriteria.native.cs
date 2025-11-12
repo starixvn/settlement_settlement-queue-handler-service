@@ -1,3 +1,5 @@
+namespace Settlement.JackTime.Criteria;
+
 public class GetOffsetCriteria : NonQueryCommand
 {
     public int MaxOffSet { get; set; }

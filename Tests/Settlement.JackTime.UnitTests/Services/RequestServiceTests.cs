@@ -2,7 +2,7 @@ using Fanex.Logging;
 using Fanex.Logging.Sentry.RavenClient;
 using Microsoft.Extensions.Options;
 using NSubstitute;
-using Settlement.JackTime.Services;
+using Settlement.JackTime.Services.JackTime;
 using Settlement.Shared.Models;
 using Settlement.Shared.Services;
 using SharpRaven;

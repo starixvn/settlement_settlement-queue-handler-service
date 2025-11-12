@@ -1,9 +1,7 @@
-﻿using Fanex.Data;
+﻿namespace Settlement.JackTime.Criteria;
 
-namespace Settlement.JackTime.Criteria;
 public class CashOutTicketSelCriteria : CriteriaBase
 {
-
     [SpParam(Ignored = true)]
     public string DbServer { get; set; }
 

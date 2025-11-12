@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using Settlement.JackTime.Criteria;
 using Settlement.JackTime.Models;
 
 namespace Settlement.JackTime.Services.Hybrid;
@@ -23,7 +24,7 @@ public class NotificationProcessing(IGetNotificationService getNotificationServi
         var criteria = new InsertHybridParlayLogCriteria
         {
             LegOddsJSON = JsonConvert.SerializeObject(notification.Notifications),
-            OffSet = notification.offSet
+            OffSet = notification.OffSet
         };
         await repository.ExecuteAsync(criteria);
     }

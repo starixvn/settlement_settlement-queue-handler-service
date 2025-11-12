@@ -1,5 +1,3 @@
-using Fanex.Data;
-
 namespace Settlement.JackTime.Criteria;
 
 public class UpdateLegOddsCriteria : INonQueryCommand

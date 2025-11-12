@@ -2,9 +2,9 @@
 using Fanex.Logging;
 using Fanex.SiteDbConnectionManager.Client.Services;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using Settlement.JackTime.Criteria;
 using Settlement.JackTime.Models;
+using Settlement.JackTime.Services.JackTime;
 using Settlement.Shared.Models;
 
 namespace Settlement.JackTime.Services;
@@ -34,11 +34,7 @@ public class JackTimeService(
                 return;
             }
 
-            await LogService.InfoAsync(
-                $"Soccer JackTime Ticket Match {match.MatchId}: {JsonConvert.SerializeObject(match.VoidBetInfos)}");
             await soccerJackTimeService.UpdateTicket(match);
-            await LogService.InfoAsync(
-                $"Soccer JackTime Ticket Match {match.MatchId}: {JsonConvert.SerializeObject(match.VoidBetInfos)}");
         }
         catch (Exception ex)
         {

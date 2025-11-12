@@ -1,7 +1,7 @@
 ﻿using Settlement.JackTime.Models;
 using Settlement.Shared.Models;
 
-namespace Settlement.JackTime.Services;
+namespace Settlement.JackTime.Services.JackTime;
 
 public interface ISoccerJackTimeService
 {

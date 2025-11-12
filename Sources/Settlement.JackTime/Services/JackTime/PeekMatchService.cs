@@ -1,6 +1,6 @@
 ﻿using Settlement.JackTime.Models;
 
-namespace Settlement.JackTime.Services;
+namespace Settlement.JackTime.Services.JackTime;
 
 internal interface IPeekMatchService
 {

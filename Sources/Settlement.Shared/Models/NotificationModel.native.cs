@@ -46,14 +46,14 @@ public class NotificationModel
 
     public IEnumerable<VoidBetInfo> VoidBetInfos
     {
-        get => voidBetInfos ?? new List<VoidBetInfo>();
+        get => voidBetInfos ?? [];
 
         set => voidBetInfos = value;
     }
 
     public IEnumerable<Market> Markets
     {
-        get => markets ?? new List<Market>();
+        get => markets ?? [];
 
         set => markets = value;
     }

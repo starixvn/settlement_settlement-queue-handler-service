@@ -1,5 +1,7 @@
 using Fanex.Data.Repository;
 
+namespace Settlement.Shared.Criteria;
+
 public class LetsTalkMessageInsertCriteria : NonQueryCommand
 {
     public int MessageGroupId { get; set; }

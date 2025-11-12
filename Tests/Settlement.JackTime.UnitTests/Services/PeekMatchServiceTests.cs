@@ -2,6 +2,7 @@ using FluentAssertions;
 using NSubstitute;
 using Settlement.JackTime.Models;
 using Settlement.JackTime.Services;
+using Settlement.JackTime.Services.JackTime;
 using Xunit;
 
 namespace Settlement.JackTime.UnitTests.Services;

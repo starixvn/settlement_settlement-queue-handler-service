@@ -49,7 +49,7 @@ public class GetNotificationServiceTests
         var result = await service.GetNotifications(offset);
 
         result.Should().NotBeNull();
-        result.offSet.Should().Be((int)offset);
+        result.OffSet.Should().Be((int)offset);
         result.Notifications.Should().HaveCount(2);
         result.Notifications.Should().Contain(n => n.MatchId == 123 && n.TransId == 1 && n.Odds == 1.5m);
         result.Notifications.Should().Contain(n => n.MatchId == 123 && n.TransId == 2 && n.Odds == 2.0m);
@@ -130,7 +130,7 @@ public class GetNotificationServiceTests
         var result = await service.GetNotifications(offset);
 
         result.Should().NotBeNull();
-        result.offSet.Should().Be((int)offset);
+        result.OffSet.Should().Be((int)offset);
         result.Notifications.Should().BeEmpty();
     }
 }

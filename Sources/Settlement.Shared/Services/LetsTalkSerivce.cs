@@ -1,4 +1,5 @@
 using Fanex.Data.Repository;
+using Settlement.Shared.Criteria;
 
 namespace Settlement.Shared.Services;
 

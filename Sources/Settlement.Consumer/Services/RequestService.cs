@@ -1,7 +1,5 @@
-﻿using Fanex.Logging;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 using Settlement.Consumer.Constants;
 using Settlement.Consumer.Models.SoccerJackTime;
 using Settlement.Shared.Models;
@@ -33,10 +31,8 @@ public class RequestService(
 
     public async Task UpdateMarkets(JTResultMarketRequestModel request, IEnumerable<Market> markets, int matchId)
     {
-        await LogService.InfoAsync($"Request Update Result Match {matchId}: " + JsonConvert.SerializeObject(request));
         var updateMarketApi = $"{options.Value.ThirdPartyUri.JackTimeMarkets}/{CashOutEndpoints.ResultMarkets}";
         var response = await invokeExternalApi.PutAsync(request, updateMarketApi);
-        await LogService.InfoAsync($"Response Update Result Match {matchId}: " + JsonConvert.SerializeObject(response));
 
         await handleResponseService.HandleUpdateResultResponse(response, markets, matchId);
     }

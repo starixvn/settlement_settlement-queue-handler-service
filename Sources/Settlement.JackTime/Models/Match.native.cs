@@ -14,4 +14,6 @@ public class Match
     {
         return obj is Match match && match.MatchId == MatchId;
     }
+
+    public override int GetHashCode() => MatchId.GetHashCode();
 }
