@@ -26,7 +26,7 @@ public class HybridParlayConsumer(
             {
                 var (Odds, InvalidTransId) = await hybridParlayService.GetOddsAndInvalidTransId(matchId, hybridMatch.LogDate, transId);
 
-                await hybridParlayLogService.InvalidTransId(hybridMatch, InvalidTransId);
+                await hybridParlayLogService.InvalidTransIdsWriteLogAndSendLetstalk(hybridMatch, InvalidTransId);
 
                 await LogService.InfoAsync($"JackTime Hybrid Consumer Get Odds: MatchId({matchId}) - {JsonConvert.SerializeObject(Odds)}");
 

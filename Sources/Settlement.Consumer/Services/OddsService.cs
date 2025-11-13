@@ -3,7 +3,7 @@ using Polly;
 using Settlement.Consumer.Criteria;
 using Settlement.Consumer.Models.JackTimeHybrid;
 using Settlement.JackTime.Criteria;
-using Settlement.Shared.Models;
+using Settlement.JackTime.Models;
 
 namespace Settlement.Consumer.Services;
 
@@ -11,7 +11,7 @@ public interface OddsService
 {
     Task<List<OddModel>> GetOdds(int matchId, DateTimeOffset logDate, string transIds);
 
-    Task<(Result, string)> UpdateOdds(IEnumerable<OddModel> odds, string siteName, int userId, int matchId);
+    Task<ValidationTransIds> UpdateOdds(IEnumerable<OddModel> odds, string siteName, int userId, int matchId);
 }
 
 public class OddsServiceImp(IDynamicRepository repository) : OddsService
@@ -47,7 +47,7 @@ public class OddsServiceImp(IDynamicRepository repository) : OddsService
         return results;
     }
 
-    public async Task<(Result, string)> UpdateOdds(IEnumerable<OddModel> odds, string siteName, int userId, int matchId)
+    public async Task<ValidationTransIds> UpdateOdds(IEnumerable<OddModel> odds, string siteName, int userId, int matchId)
     {
         var criteria = new UpdateLegOddsCriteria
         {
@@ -57,9 +57,6 @@ public class OddsServiceImp(IDynamicRepository repository) : OddsService
             DbServer = siteName
         };
 
-        await repository.ExecuteAsync(criteria);
-
-        var result = new Result(criteria.ErrCode, criteria.ErrMsg);
-        return (result, criteria.AffectedTransIds);
+        return await repository.GetAsync<ValidationTransIds>(criteria);
     }
 }

@@ -1,6 +1,6 @@
 namespace Settlement.JackTime.Criteria;
 
-public class UpdateLegOddsCriteria : INonQueryCommand
+public class UpdateLegOddsCriteria : CriteriaBase
 {
     public string LegOddsJSON { get; set; }
 
@@ -15,9 +15,7 @@ public class UpdateLegOddsCriteria : INonQueryCommand
 
     public string ErrMsg { get; set; }
 
-    public string AffectedTransIds { get; set; }
+    public override string GetSettingKey() => $"NAP_Admin_HybridParlay_LegOddsUpd_{DbServer}";
 
-    public string GetSettingKey() => $"NAP_Admin_HybridParlay_LegOddsUpd_{DbServer}";
-
-    public bool IsValid() => LegOddsJSON.Length > 0;
+    public override bool IsValid() => LegOddsJSON.Length > 0;
 }

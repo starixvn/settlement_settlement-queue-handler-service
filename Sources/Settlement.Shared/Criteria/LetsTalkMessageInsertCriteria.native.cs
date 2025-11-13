@@ -1,4 +1,5 @@
 using Fanex.Data.Repository;
+using Settlement.Shared.Constants;
 
 namespace Settlement.Shared.Criteria;
 
@@ -6,7 +7,7 @@ public class LetsTalkMessageInsertCriteria : NonQueryCommand
 {
     public int MessageGroupId { get; set; }
 
-    public string MessageType => "Reminder";
+    public string MessageType => MessageGroupId == MessageGroup.HybridParlay ? "Warning" : "Reminder";
 
     public int MatchId { get; set; }
 

@@ -7,6 +7,7 @@ using Settlement.Consumer.Criteria;
 using Settlement.Consumer.Models.JackTimeHybrid;
 using Settlement.Consumer.Services;
 using Settlement.JackTime.Criteria;
+using Settlement.JackTime.Models;
 using Settlement.Shared.Models;
 using Xunit;
 
@@ -138,15 +139,20 @@ public class JackTimeHybridServiceTests
         mockSiteDbClientService.GetActiveSiteDbAsync()
             .Returns(siteDbServers);
 
-        var successResult = new Result(0, string.Empty);
+        var validationTransIds = new ValidationTransIds
+        {
+            AffectedTransIds = string.Empty,
+            WrongOddsTransIds = "1,2",
+            InvalidTransIds = string.Empty
+        };
         mockOddsService.UpdateOdds(odds, "Server1", hybridMatch.UserId, hybridMatch.MatchId)
-            .Returns((successResult, string.Empty));
+            .Returns(validationTransIds);
 
         await service.UpdateOddsAndSettle(hybridMatch, odds);
 
-        await mockHybridLogService.Received(1).InvalidLegOdds(
+        await mockHybridLogService.Received(1).InvalidTransIdsSendLetstalk(
             hybridMatch,
-            Arg.Is<List<string>>(list => list.Count == 2 && list.Contains("1") && list.Contains("2")));
+            Arg.Is<List<ValidationTransIds>>(list => list.Count == 1 && list[0].WrongOddsTransIds == "1,2"));
     }
 
     [Fact]
@@ -172,9 +178,14 @@ public class JackTimeHybridServiceTests
         mockSiteDbClientService.GetActiveSiteDbAsync()
             .Returns(siteDbServers);
 
-        var successResult = new Result(0, string.Empty);
+        var validationTransIds = new ValidationTransIds
+        {
+            AffectedTransIds = "1,2",
+            WrongOddsTransIds = "3",
+            InvalidTransIds = string.Empty
+        };
         mockOddsService.UpdateOdds(odds, "Server1", hybridMatch.UserId, hybridMatch.MatchId)
-            .Returns((successResult, "1,2"));
+            .Returns(validationTransIds);
 
         await service.UpdateOddsAndSettle(hybridMatch, odds);
 
@@ -186,9 +197,9 @@ public class JackTimeHybridServiceTests
                 c.TransIds == "1,2" &&
                 c.DbServer == "Server1"));
 
-        await mockHybridLogService.Received(1).InvalidLegOdds(
+        await mockHybridLogService.Received(1).InvalidTransIdsSendLetstalk(
             hybridMatch,
-            Arg.Is<List<string>>(list => list.Count == 1 && list.Contains("3")));
+            Arg.Is<List<ValidationTransIds>>(list => list.Count == 1 && list[0].WrongOddsTransIds == "3"));
     }
 
     [Fact]
@@ -213,14 +224,19 @@ public class JackTimeHybridServiceTests
         mockSiteDbClientService.GetActiveSiteDbAsync()
             .Returns(siteDbServers);
 
-        var successResult = new Result(0, string.Empty);
+        var validationTransIds = new ValidationTransIds
+        {
+            AffectedTransIds = "1,2",
+            WrongOddsTransIds = string.Empty,
+            InvalidTransIds = string.Empty
+        };
         mockOddsService.UpdateOdds(odds, "Server1", hybridMatch.UserId, hybridMatch.MatchId)
-            .Returns((successResult, "1,2"));
+            .Returns(validationTransIds);
 
         await service.UpdateOddsAndSettle(hybridMatch, odds);
 
         await mockRepository.Received(1).ExecuteAsync(Arg.Any<CalculateHybridMatchCriteria>());
-        await mockHybridLogService.DidNotReceive().InvalidLegOdds(Arg.Any<HybridMatch>(), Arg.Any<List<string>>());
+        await mockHybridLogService.DidNotReceive().InvalidTransIdsSendLetstalk(Arg.Any<HybridMatch>(), Arg.Any<List<ValidationTransIds>>());
     }
 
     [Fact]
@@ -245,16 +261,21 @@ public class JackTimeHybridServiceTests
         mockSiteDbClientService.GetActiveSiteDbAsync()
             .Returns(siteDbServers);
 
-        var failResult = new Result(1, "Error message");
+        var validationTransIds = new ValidationTransIds
+        {
+            AffectedTransIds = string.Empty,
+            WrongOddsTransIds = "1,2",
+            InvalidTransIds = string.Empty
+        };
         mockOddsService.UpdateOdds(odds, "Server1", hybridMatch.UserId, hybridMatch.MatchId)
-            .Returns((failResult, string.Empty));
+            .Returns(validationTransIds);
 
         await service.UpdateOddsAndSettle(hybridMatch, odds);
 
         await mockRepository.DidNotReceive().ExecuteAsync(Arg.Any<CalculateHybridMatchCriteria>());
-        await mockHybridLogService.Received(1).InvalidLegOdds(
+        await mockHybridLogService.Received(1).InvalidTransIdsSendLetstalk(
             hybridMatch,
-            Arg.Is<List<string>>(list => list.Count == 2 && list.Contains("1") && list.Contains("2")));
+            Arg.Is<List<ValidationTransIds>>(list => list.Count == 1 && list[0].WrongOddsTransIds == "1,2"));
     }
 
     [Fact]
@@ -279,16 +300,70 @@ public class JackTimeHybridServiceTests
         mockSiteDbClientService.GetActiveSiteDbAsync()
             .Returns(siteDbServers);
 
-        var successResult = new Result(0, string.Empty);
+        var validationTransIds = new ValidationTransIds
+        {
+            AffectedTransIds = string.Empty,
+            WrongOddsTransIds = "1",
+            InvalidTransIds = string.Empty
+        };
         mockOddsService.UpdateOdds(odds, Arg.Any<string>(), hybridMatch.UserId, hybridMatch.MatchId)
-            .Returns((successResult, string.Empty));
+            .Returns(validationTransIds);
 
         await service.UpdateOddsAndSettle(hybridMatch, odds);
 
         await mockOddsService.Received(2).UpdateOdds(odds, Arg.Any<string>(), hybridMatch.UserId, hybridMatch.MatchId);
-        await mockHybridLogService.Received(1).InvalidLegOdds(
+        await mockHybridLogService.Received(1).InvalidTransIdsSendLetstalk(
             hybridMatch,
-            Arg.Is<List<string>>(list => list.Count == 1 && list.Contains("1")));
+            Arg.Is<List<ValidationTransIds>>(list => list.Count == 2 && list.All(v => v.WrongOddsTransIds == "1")));
+    }
+
+    [Fact]
+    public async Task UpdateOddsAndSettle_WhenInvalidTransIds_ShouldCallInvalidTransIdsSendLetstalk()
+    {
+        var hybridMatch = new HybridMatch
+        {
+            MatchId = 123,
+            UserId = 456,
+            Action = "TestAction"
+        };
+        var odds = new List<OddModel>
+        {
+            new(123, 1, 1.5m),
+            new(123, 2, 2.0m)
+        };
+        var siteDbServers = new List<SiteDb>
+        {
+            new() { SiteName = "Server1", SiteDbGroupId = 1 }
+        };
+
+        mockSiteDbClientService.GetActiveSiteDbAsync()
+            .Returns(siteDbServers);
+
+        var validationTransIds = new ValidationTransIds
+        {
+            AffectedTransIds = "1",
+            WrongOddsTransIds = string.Empty,
+            InvalidTransIds = "2"
+        };
+        mockOddsService.UpdateOdds(odds, "Server1", hybridMatch.UserId, hybridMatch.MatchId)
+            .Returns(validationTransIds);
+
+        await service.UpdateOddsAndSettle(hybridMatch, odds);
+
+        await mockRepository.Received(1).ExecuteAsync(
+            Arg.Is<CalculateHybridMatchCriteria>(c =>
+                c.MatchId == hybridMatch.MatchId &&
+                c.Creator == hybridMatch.UserId &&
+                c.Action == hybridMatch.Action &&
+                c.TransIds == "1" &&
+                c.DbServer == "Server1"));
+
+        await mockHybridLogService.Received(1).InvalidTransIdsSendLetstalk(
+            hybridMatch,
+            Arg.Is<List<ValidationTransIds>>(list => 
+                list.Count == 1 && 
+                list[0].InvalidTransIds == "2" && 
+                string.IsNullOrEmpty(list[0].WrongOddsTransIds)));
     }
 
     [Fact]

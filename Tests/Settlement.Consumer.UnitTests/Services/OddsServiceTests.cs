@@ -4,6 +4,7 @@ using Settlement.Consumer.Criteria;
 using Settlement.Consumer.Models.JackTimeHybrid;
 using Settlement.Consumer.Services;
 using Settlement.JackTime.Criteria;
+using Settlement.JackTime.Models;
 
 namespace Settlement.Consumer.UnitTests.Services;
 
@@ -106,7 +107,7 @@ public class OddsServiceTests
     }
 
     [Fact]
-    public async Task UpdateOdds_WhenSuccessful_ShouldReturnSuccessResult()
+    public async Task UpdateOdds_WhenSuccessful_ShouldReturnValidationTransIds()
     {
         var odds = new List<OddModel>
         {
@@ -116,24 +117,23 @@ public class OddsServiceTests
         var siteName = "Server1";
         var userId = 456;
         var matchId = 123;
-        var affectedTransIds = "1,2";
+        var expectedResult = new ValidationTransIds
+        {
+            AffectedTransIds = "1,2",
+            WrongOddsTransIds = string.Empty,
+            InvalidTransIds = string.Empty
+        };
 
-        mockRepository.ExecuteAsync(Arg.Any<UpdateLegOddsCriteria>())
-            .Returns(callInfo =>
-            {
-                var criteria = callInfo.Arg<UpdateLegOddsCriteria>();
-                criteria.ErrCode = 0;
-                criteria.ErrMsg = string.Empty;
-                criteria.AffectedTransIds = affectedTransIds;
-                return Task.FromResult(0);
-            });
+        mockRepository.GetAsync<ValidationTransIds>(Arg.Any<UpdateLegOddsCriteria>())
+            .Returns(expectedResult);
 
-        var (result, affected) = await service.UpdateOdds(odds, siteName, userId, matchId);
+        var result = await service.UpdateOdds(odds, siteName, userId, matchId);
 
-        Assert.True(result.IsSuccessful);
-        Assert.Equal(affectedTransIds, affected);
+        Assert.Equal(expectedResult.AffectedTransIds, result.AffectedTransIds);
+        Assert.Equal(expectedResult.WrongOddsTransIds, result.WrongOddsTransIds);
+        Assert.Equal(expectedResult.InvalidTransIds, result.InvalidTransIds);
 
-        await mockRepository.Received(1).ExecuteAsync(
+        await mockRepository.Received(1).GetAsync<ValidationTransIds>(
             Arg.Is<UpdateLegOddsCriteria>(c =>
                 c.MatchId == matchId &&
                 c.Creator == userId &&
@@ -142,7 +142,7 @@ public class OddsServiceTests
     }
 
     [Fact]
-    public async Task UpdateOdds_WhenFailed_ShouldReturnFailureResult()
+    public async Task UpdateOdds_WhenHasWrongOddsTransIds_ShouldReturnValidationTransIds()
     {
         var odds = new List<OddModel>
         {
@@ -151,25 +151,20 @@ public class OddsServiceTests
         var siteName = "Server1";
         var userId = 456;
         var matchId = 123;
-        var errorCode = 1;
-        var errorMsg = "Update failed";
+        var expectedResult = new ValidationTransIds
+        {
+            AffectedTransIds = string.Empty,
+            WrongOddsTransIds = "1",
+            InvalidTransIds = string.Empty
+        };
 
-        mockRepository.ExecuteAsync(Arg.Any<UpdateLegOddsCriteria>())
-            .Returns(callInfo =>
-            {
-                var criteria = callInfo.Arg<UpdateLegOddsCriteria>();
-                criteria.ErrCode = errorCode;
-                criteria.ErrMsg = errorMsg;
-                criteria.AffectedTransIds = string.Empty;
-                return Task.FromResult(0);
-            });
+        mockRepository.GetAsync<ValidationTransIds>(Arg.Any<UpdateLegOddsCriteria>())
+            .Returns(expectedResult);
 
-        var (result, affected) = await service.UpdateOdds(odds, siteName, userId, matchId);
+        var result = await service.UpdateOdds(odds, siteName, userId, matchId);
 
-        Assert.False(result.IsSuccessful);
-        Assert.Equal(errorCode, result.ErrCode);
-        Assert.Equal(errorMsg, result.ErrMsg);
-        Assert.Empty(affected);
+        Assert.Equal(expectedResult.WrongOddsTransIds, result.WrongOddsTransIds);
+        Assert.Empty(result.AffectedTransIds);
     }
 
     [Fact]
@@ -185,9 +180,12 @@ public class OddsServiceTests
         var userId = 456;
         var matchId = 123;
 
+        mockRepository.GetAsync<ValidationTransIds>(Arg.Any<UpdateLegOddsCriteria>())
+            .Returns(new ValidationTransIds());
+
         await service.UpdateOdds(odds, siteName, userId, matchId);
 
-        await mockRepository.Received(1).ExecuteAsync(
+        await mockRepository.Received(1).GetAsync<ValidationTransIds>(
             Arg.Is<UpdateLegOddsCriteria>(c =>
                 c.LegOddsJSON.Contains("123") &&
                 c.LegOddsJSON.Contains("456") &&
@@ -200,16 +198,19 @@ public class OddsServiceTests
     }
 
     [Fact]
-    public async Task UpdateOdds_WhenEmptyOdds_ShouldStillCallExecute()
+    public async Task UpdateOdds_WhenEmptyOdds_ShouldStillCallGetAsync()
     {
         var odds = new List<OddModel>();
         var siteName = "Server1";
         var userId = 456;
         var matchId = 123;
 
+        mockRepository.GetAsync<ValidationTransIds>(Arg.Any<UpdateLegOddsCriteria>())
+            .Returns(new ValidationTransIds());
+
         await service.UpdateOdds(odds, siteName, userId, matchId);
 
-        await mockRepository.Received(1).ExecuteAsync(
+        await mockRepository.Received(1).GetAsync<ValidationTransIds>(
             Arg.Is<UpdateLegOddsCriteria>(c =>
                 c.MatchId == matchId &&
                 c.Creator == userId &&
@@ -228,11 +229,12 @@ public class OddsServiceTests
         var userId = 999;
         var matchId = 789;
 
-        await mockRepository.ExecuteAsync(Arg.Any<UpdateLegOddsCriteria>());
+        mockRepository.GetAsync<ValidationTransIds>(Arg.Any<UpdateLegOddsCriteria>())
+            .Returns(new ValidationTransIds());
 
         await service.UpdateOdds(odds, siteName, userId, matchId);
 
-        await mockRepository.Received(1).ExecuteAsync(
+        await mockRepository.Received(1).GetAsync<ValidationTransIds>(
             Arg.Is<UpdateLegOddsCriteria>(c =>
                 c.MatchId == matchId &&
                 c.Creator == userId &&
@@ -252,20 +254,18 @@ public class OddsServiceTests
         var userId = 456;
         var matchId = 123;
         var affectedTransIds = "1,3";
+        var expectedResult = new ValidationTransIds
+        {
+            AffectedTransIds = affectedTransIds,
+            WrongOddsTransIds = string.Empty,
+            InvalidTransIds = string.Empty
+        };
 
-        mockRepository.ExecuteAsync(Arg.Any<UpdateLegOddsCriteria>())
-            .Returns(callInfo =>
-            {
-                var criteria = callInfo.Arg<UpdateLegOddsCriteria>();
-                criteria.ErrCode = 0;
-                criteria.ErrMsg = string.Empty;
-                criteria.AffectedTransIds = affectedTransIds;
-                return Task.FromResult(0);
-            });
+        mockRepository.GetAsync<ValidationTransIds>(Arg.Any<UpdateLegOddsCriteria>())
+            .Returns(expectedResult);
 
-        var (result, affected) = await service.UpdateOdds(odds, siteName, userId, matchId);
+        var result = await service.UpdateOdds(odds, siteName, userId, matchId);
 
-        Assert.True(result.IsSuccessful);
-        Assert.Equal(affectedTransIds, affected);
+        Assert.Equal(affectedTransIds, result.AffectedTransIds);
     }
 }

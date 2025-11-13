@@ -5,6 +5,7 @@ using NSubstitute;
 using Settlement.Consumer.Constants;
 using Settlement.Consumer.Models.SoccerJackTime;
 using Settlement.Consumer.Services;
+using Settlement.Shared.Constants;
 using Settlement.Shared.Models;
 using Settlement.Shared.Services;
 using SharpRaven;

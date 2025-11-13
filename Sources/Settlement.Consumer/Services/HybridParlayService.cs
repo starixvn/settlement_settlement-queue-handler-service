@@ -3,6 +3,7 @@ using Fanex.SiteDbConnectionManager.Client.Services;
 using Polly;
 using Settlement.Consumer.Criteria;
 using Settlement.Consumer.Models.JackTimeHybrid;
+using Settlement.JackTime.Models;
 using TaskResult = (System.Collections.Generic.List<Settlement.Consumer.Models.JackTimeHybrid.OddModel> Odds, System.Collections.Generic.List<string> InvalidTransId);
 
 namespace Settlement.Consumer.Services;
@@ -84,41 +85,29 @@ public class HybridParlayServiceImp(
             var tasks = siteDbServer.Select(s => UpdateOddsAndSettleBySiteDb(hybridMatch, odds, s.SiteName));
 
             var results = await Task.WhenAll(tasks);
-            var listTransIds = results.SelectMany(r => r).Distinct().ToList();
+            var listTransIds = results.ToList();
 
-            if (listTransIds.Count > 0)
+            var hasInvalidTransIds = listTransIds.Exists(v =>
+                !string.IsNullOrEmpty(v.WrongOddsTransIds) ||
+                !string.IsNullOrEmpty(v.InvalidTransIds));
+
+            if (hasInvalidTransIds)
             {
-                await hybridParlayLogService.InvalidLegOdds(hybridMatch, listTransIds);
+                await hybridParlayLogService.InvalidTransIdsSendLetstalk(hybridMatch, listTransIds);
             }
         }
     }
 
-    private async Task<List<string>> UpdateOddsAndSettleBySiteDb(HybridMatch hybridMatch, IEnumerable<OddModel> odds, string siteName)
+    private async Task<ValidationTransIds> UpdateOddsAndSettleBySiteDb(HybridMatch hybridMatch, IEnumerable<OddModel> odds, string siteName)
     {
-        var (result, affectedTransIds) = await oddsService.UpdateOdds(odds, siteName, hybridMatch.UserId, hybridMatch.MatchId);
-        
-        if (!result.IsSuccessful)
+        var results = await oddsService.UpdateOdds(odds, siteName, hybridMatch.UserId, hybridMatch.MatchId);
+
+        if (!string.IsNullOrEmpty(results.AffectedTransIds))
         {
-            return [.. odds.Select(o => o.TransId.ToString())];
+            await CalculateHybridMatch(hybridMatch, siteName, results.AffectedTransIds);
         }
 
-        if (string.IsNullOrEmpty(affectedTransIds))
-        {
-            return [.. odds.Select(o => o.TransId.ToString())];
-        }
-
-        await CalculateHybridMatch(hybridMatch, siteName, affectedTransIds);
-
-        var invalidTransIds = GetTransIdsNotInAffected(odds, affectedTransIds);
-        return invalidTransIds;
-    }
-
-    private static List<string> GetTransIdsNotInAffected(IEnumerable<OddModel> odds, string affectedTransIds)
-    {
-        var allTransIds = odds.Select(o => o.TransId.ToString()).ToList();
-
-        var affectedTransIdsSet = new HashSet<string>(affectedTransIds.Split(',').Select(t => t.Trim()));
-        return [.. allTransIds.Except(affectedTransIdsSet)];
+        return results;
     }
 
     private async Task CalculateHybridMatch(HybridMatch hybridMatch, string siteName, string transIds)
