@@ -9,7 +9,6 @@ public static class MassTransitConfig
     {
         var rabbitHost = configuration["RabbitMQ:Host"];
         var virtualHost = configuration["RabbitMQ:VirtualHost"];
-        var endpoints = configuration.GetSection("RabbitMQ:Endpoints").Get<List<string>>();
 
         services.AddMassTransit(busConfigurator =>
         {
