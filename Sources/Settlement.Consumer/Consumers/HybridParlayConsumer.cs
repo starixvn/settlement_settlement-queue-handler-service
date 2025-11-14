@@ -16,11 +16,11 @@ public class HybridParlayConsumer(
         try
         {
             var hybridMatch = context.Message;
-            var matchId = context.Message.MatchId;
+            var matchId = hybridMatch.MatchId;
 
             await LogService.InfoAsync($"JackTime Hybrid Consumer Started: MatchId({matchId})");
 
-            var transId = await hybridParlayService.GetHyBridTransId(matchId);
+            var transId = await hybridParlayService.GetHyBridTransId(matchId, hybridMatch.Action);
             if (!string.IsNullOrEmpty(transId))
             {
                 var (Odds, InvalidTransId) = await hybridParlayService.GetOddsAndInvalidTransId(matchId, hybridMatch.LogDate, transId);

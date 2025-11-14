@@ -360,9 +360,9 @@ public class JackTimeHybridServiceTests
 
         await mockHybridLogService.Received(1).InvalidTransIdsSendLetstalk(
             hybridMatch,
-            Arg.Is<List<ValidationTransIds>>(list => 
-                list.Count == 1 && 
-                list[0].InvalidTransIds == "2" && 
+            Arg.Is<List<ValidationTransIds>>(list =>
+                list.Count == 1 &&
+                list[0].InvalidTransIds == "2" &&
                 string.IsNullOrEmpty(list[0].WrongOddsTransIds)));
     }
 
@@ -393,7 +393,7 @@ public class JackTimeHybridServiceTests
                 criteria.ErrCode = 0;
             });
 
-        var result = await service.GetHyBridTransId(matchId);
+        var result = await service.GetHyBridTransId(matchId, string.Empty);
 
         Assert.Equal("1,2,3", result);
     }

@@ -6,6 +6,8 @@ public class HyBridValidateCriteria : CriteriaBase
 {
     public int MatchId { get; set; }
 
+    public string Action { get; set; }
+
     public int ErrCode { get; set; }
 
     public string ErrMsg { get; set; }
