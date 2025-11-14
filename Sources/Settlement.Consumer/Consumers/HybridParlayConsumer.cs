@@ -1,4 +1,3 @@
-using Fanex.Logging;
 using Fanex.Settlement.MessageBridge.JackTime;
 using MassTransit;
 using Newtonsoft.Json;
@@ -36,6 +35,7 @@ public class HybridParlayConsumer(
         catch (Exception e)
         {
             await LogService.ErrorAsync($"JackTime Hybrid Consumer Failed: MatchId({context.Message.MatchId}) - {e.Message}\n{e.StackTrace}");
+            throw;
         }
     }
 }

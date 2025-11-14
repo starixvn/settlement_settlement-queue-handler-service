@@ -17,5 +17,5 @@ public class UpdateLegOddsCriteria : CriteriaBase
 
     public override string GetSettingKey() => $"NAP_Admin_HybridParlay_LegOddsUpd_{DbServer}";
 
-    public override bool IsValid() => LegOddsJSON.Length > 0;
+    public override bool IsValid() => !string.IsNullOrEmpty(LegOddsJSON);
 }

@@ -12,5 +12,5 @@ public class InsertHybridParlayLogCriteria : INonQueryCommand
 
     public string GetSettingKey() => "NAP_Admin_HybridParlayLog_Ins";
 
-    public bool IsValid() => LegOddsJSON.Length > 0;
+    public bool IsValid() => !string.IsNullOrEmpty(LegOddsJSON);
 }
