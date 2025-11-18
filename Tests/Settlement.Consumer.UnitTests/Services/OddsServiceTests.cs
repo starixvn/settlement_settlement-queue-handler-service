@@ -56,9 +56,10 @@ public class OddsServiceTests
         var logDate = DateTimeOffset.Now;
         var transIds = "1,2";
         var emptyResults = new List<OddModel>();
-        var resultsWithData = new List<OddModel>
+        var resultsWithAllData = new List<OddModel>
         {
-            new(matchId, 1, 1.5m)
+            new(matchId, 1, 1.5m),
+            new(matchId, 2, 2.0m)
         };
 
         var callCount = 0;
@@ -66,13 +67,14 @@ public class OddsServiceTests
             .Returns(callInfo =>
             {
                 callCount++;
-                return callCount <= 2 ? emptyResults : resultsWithData;
+                return callCount <= 2 ? emptyResults : resultsWithAllData;
             });
 
         var result = await service.GetOdds(matchId, logDate, transIds);
 
-        Assert.Single(result);
+        Assert.Equal(2, result.Count);
         Assert.Equal(1, result[0].TransId);
+        Assert.Equal(2, result[1].TransId);
         Assert.True(callCount >= 3);
     }
 
@@ -90,6 +92,62 @@ public class OddsServiceTests
         var result = await service.GetOdds(matchId, logDate, transIds);
 
         Assert.Empty(result);
+        await mockRepository.Received(6).FetchAsync<OddModel>(Arg.Any<HybridParlayLogSelCriteria>());
+    }
+
+    [Fact]
+    public async Task GetOdds_WhenPartialResults_ShouldRetryUntilComplete()
+    {
+        var matchId = 123;
+        var logDate = DateTimeOffset.Now;
+        var transIds = "1,2,3";
+        var partialResults = new List<OddModel>
+        {
+            new(matchId, 1, 1.5m),
+            new(matchId, 2, 2.0m)
+        };
+        var completeResults = new List<OddModel>
+        {
+            new(matchId, 1, 1.5m),
+            new(matchId, 2, 2.0m),
+            new(matchId, 3, 2.5m)
+        };
+
+        var callCount = 0;
+        mockRepository.FetchAsync<OddModel>(Arg.Any<HybridParlayLogSelCriteria>())
+            .Returns(callInfo =>
+            {
+                callCount++;
+                return callCount <= 2 ? partialResults : completeResults;
+            });
+
+        var result = await service.GetOdds(matchId, logDate, transIds);
+
+        Assert.Equal(3, result.Count);
+        Assert.Equal(1, result[0].TransId);
+        Assert.Equal(2, result[1].TransId);
+        Assert.Equal(3, result[2].TransId);
+        Assert.True(callCount >= 3);
+    }
+
+    [Fact]
+    public async Task GetOdds_WhenPartialResultsNeverComplete_ShouldRetryMaxTimes()
+    {
+        var matchId = 123;
+        var logDate = DateTimeOffset.Now;
+        var transIds = "1,2,3";
+        var partialResults = new List<OddModel>
+        {
+            new(matchId, 1, 1.5m),
+            new(matchId, 2, 2.0m)
+        };
+
+        mockRepository.FetchAsync<OddModel>(Arg.Any<HybridParlayLogSelCriteria>())
+            .Returns(partialResults);
+
+        var result = await service.GetOdds(matchId, logDate, transIds);
+
+        Assert.Equal(2, result.Count);
         await mockRepository.Received(6).FetchAsync<OddModel>(Arg.Any<HybridParlayLogSelCriteria>());
     }
 

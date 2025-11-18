@@ -22,6 +22,8 @@ public class OddsServiceImp(IDynamicRepository repository) : OddsService
 
     public async Task<List<OddModel>> GetOdds(int matchId, DateTimeOffset logDate, string transIds)
     {
+        var expectedCount = transIds.Split(',').Select(t => t.Trim()).Count(t => !string.IsNullOrWhiteSpace(t));
+
         var retryPolicy = Policy
             .HandleResult<bool>(result => result)
             .WaitAndRetryAsync(
@@ -41,7 +43,7 @@ public class OddsServiceImp(IDynamicRepository repository) : OddsService
 
             results = [.. (await repository.FetchAsync<OddModel>(criteria))];
 
-            return results.Count == 0;
+            return results.Count < expectedCount;
         });
 
         return results;
