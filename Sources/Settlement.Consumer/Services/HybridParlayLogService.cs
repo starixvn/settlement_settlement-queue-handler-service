@@ -1,5 +1,4 @@
 using Fanex.Settlement.MessageBridge.JackTime;
-using Settlement.Consumer.Constants;
 using Settlement.Consumer.Criteria;
 using Settlement.JackTime.Models;
 using Settlement.Shared.Constants;
@@ -16,7 +15,7 @@ public interface HybridParlayLogService
 
 public class HybridParlayLogServiceImp(ILetsTalkService letsTalkService, IDynamicRepository repository) : HybridParlayLogService
 {
-    private readonly int HybridLogId = 90433;
+    private readonly int HybridLogId = 81067;
 
     private const string ActionName = "Get new Leg Odds";
 
@@ -24,17 +23,10 @@ public class HybridParlayLogServiceImp(ILetsTalkService letsTalkService, IDynami
     {
         if (transIds.Count > 0)
         {
-            await WriteLog(hybridMatch.MatchId);
             var message = $"Failed: Cannot get new Leg odds, some of the following TransIds might not be settled.{Environment.NewLine}TransIds: {string.Join(", ", transIds)}";
+            await WriteLog(hybridMatch.MatchId, message);
             await letsTalkService.SendMessage(hybridMatch.MatchId, hybridMatch.UserId, ActionName, message, MessageGroup.HybridParlay);
         }
-    }
-
-    private async Task WriteLog(int matchId)
-    {
-        const string message = "No Odds Found";
-        var criteria = new LogCriteria(matchId, message, HybridLogId);
-        await repository.ExecuteAsync(criteria);
     }
 
     public async Task InvalidTransIdsSendLetstalk(HybridMatch hybridMatch, List<ValidationTransIds> validationTransIds)
@@ -67,12 +59,20 @@ public class HybridParlayLogServiceImp(ILetsTalkService letsTalkService, IDynami
     private async Task SendInvalidLegOddsMessage(HybridMatch hybridMatch, string transIds)
     {
         var message = $"Failed: Cannot settled due to invalid Leg Odds(Leg Odds > Placed Leg Odds).{Environment.NewLine}TransIds: {transIds}";
+        await WriteLog(hybridMatch.MatchId, message);
         await letsTalkService.SendMessage(hybridMatch.MatchId, hybridMatch.UserId, ActionName, message, MessageGroup.HybridParlay);
     }
 
     private async Task SendInvalidTransIdsMessage(HybridMatch hybridMatch, string transIds)
     {
         var message = $"Failed: Cannot update new Leg odds, some of the following TransIds might not be settled.{Environment.NewLine}TransIds: {transIds}";
+        await WriteLog(hybridMatch.MatchId, message);
         await letsTalkService.SendMessage(hybridMatch.MatchId, hybridMatch.UserId, ActionName, message, MessageGroup.HybridParlay);
+    }
+
+    private async Task WriteLog(int matchId, string message)
+    {
+        var criteria = new LogCriteria(matchId, message, HybridLogId);
+        await repository.ExecuteAsync(criteria);
     }
 }

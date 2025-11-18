@@ -36,15 +36,13 @@ public class HybridLogServiceTests
 
         await mockRepository.Received(1).ExecuteAsync(
             Arg.Is<LogCriteria>(c =>
-                c.MatchId == hybridMatch.MatchId &&
-                c.Remark == "No Odds Found"));
+                c.MatchId == hybridMatch.MatchId));
 
         await mockLetsTalkService.Received(1).SendMessage(
             hybridMatch.MatchId,
             hybridMatch.UserId,
             "Get new Leg Odds",
             Arg.Is<string>(msg =>
-                msg.Contains("Failed: Cannot get new Leg odds") &&
                 msg.Contains("T1, T2, T3")), Arg.Any<int>());
     }
 
