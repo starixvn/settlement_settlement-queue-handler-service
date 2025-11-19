@@ -14,21 +14,20 @@ var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 var configuration = builder.Configuration;
 
-services.AddMassTransitWithRabbitMQ(builder.Configuration);
-services.AddFanexSql(builder.Configuration);
-
-services.Configure<AppSettingsKey>(builder.Configuration);
+services.AddMassTransitWithRabbitMQ(configuration);
+services.AddFanexSql(configuration);
+services.Configure<AppSettingsKey>(configuration);
 services.AddHttpClient();
 services.AddCoreServices();
 services.AddJackTimeServices();
 services.AddSharedServices();
-services.AddFanexLogSentry(builder.Configuration);
 services.AddAutoMapper();
-services.AddRedisCacheConfig(builder.Configuration);
-services.AddOneBookUmForService(builder.Configuration);
+services.AddFanexLogSentry(configuration);
+services.AddRedisCacheConfig(configuration);
+services.AddOneBookUmForService(configuration);
 services.AddHostedService<AutoJackTimeService>();
 services.AddHostedService<GetNotificationService>();
-services.AddFanexLogSentry(configuration);
+
 services.AddSiteDbConnectionManager();
 
 var remotingRefUrl = configuration.GetSection("Fanex.RemotingRef.Service.Url").Value;

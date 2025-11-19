@@ -23,7 +23,7 @@ public class HybridParlayLogServiceImp(ILetsTalkService letsTalkService, IDynami
     {
         if (transIds.Count > 0)
         {
-            var message = $"Failed: Cannot get new Leg odds, some of the following TransIds might not be settled.{Environment.NewLine}TransIds: {string.Join(", ", transIds)}";
+            var message = $"Failed: Cannot get new leg odds, some of the following TransIds might not be settled.{Environment.NewLine}TransIds: {string.Join(", ", transIds)}";
             await WriteLog(hybridMatch.MatchId, message);
             await letsTalkService.SendMessage(hybridMatch.MatchId, hybridMatch.UserId, ActionName, message, MessageGroup.HybridParlay);
         }
@@ -58,14 +58,14 @@ public class HybridParlayLogServiceImp(ILetsTalkService letsTalkService, IDynami
 
     private async Task SendInvalidLegOddsMessage(HybridMatch hybridMatch, string transIds)
     {
-        var message = $"Failed: Cannot settled due to invalid Leg Odds(Leg Odds > Placed Leg Odds).{Environment.NewLine}TransIds: {transIds}";
+        var message = $"Failed: Cannot settle due to invalid leg odds (leg odds > placed leg odds).{Environment.NewLine}TransIds: {transIds}";
         await WriteLog(hybridMatch.MatchId, message);
         await letsTalkService.SendMessage(hybridMatch.MatchId, hybridMatch.UserId, ActionName, message, MessageGroup.HybridParlay);
     }
 
     private async Task SendInvalidTransIdsMessage(HybridMatch hybridMatch, string transIds)
     {
-        var message = $"Failed: Cannot update new Leg odds, some of the following TransIds might not be settled.{Environment.NewLine}TransIds: {transIds}";
+        var message = $"Failed: Cannot update new leg odds, some of the following TransIds might not be settled.{Environment.NewLine}TransIds: {transIds}";
         await WriteLog(hybridMatch.MatchId, message);
         await letsTalkService.SendMessage(hybridMatch.MatchId, hybridMatch.UserId, ActionName, message, MessageGroup.HybridParlay);
     }

@@ -88,7 +88,7 @@ public class HybridLogServiceTests
             hybridMatch.UserId,
             "Get new Leg Odds",
             Arg.Is<string>(msg =>
-                msg.Contains("Failed: Cannot settled due to invalid Leg Odds") &&
+                msg.Contains("Failed: Cannot settle due to invalid leg odds") &&
                 msg.Contains("T1") && msg.Contains("T2") && msg.Contains("T3")), Arg.Any<int>());
     }
 
@@ -136,7 +136,7 @@ public class HybridLogServiceTests
             hybridMatch.UserId,
             "Get new Leg Odds",
             Arg.Is<string>(msg =>
-                msg.Contains("Failed: Cannot update new Leg odds") &&
+                msg.Contains("Failed: Cannot update new leg odds") &&
                 msg.Contains("T4") && msg.Contains("T5") && msg.Contains("T6")), Arg.Any<int>());
     }
 
@@ -167,7 +167,7 @@ public class HybridLogServiceTests
             hybridMatch.UserId,
             "Get new Leg Odds",
             Arg.Is<string>(msg =>
-                msg.Contains("Failed: Cannot settled due to invalid Leg Odds") &&
+                msg.Contains("Failed: Cannot settle due to invalid leg odds") &&
                 msg.Contains("T1") && msg.Contains("T2")),
             Arg.Any<int>());
 
@@ -176,7 +176,7 @@ public class HybridLogServiceTests
             hybridMatch.UserId,
             "Get new Leg Odds",
             Arg.Is<string>(msg =>
-                msg.Contains("Failed: Cannot update new Leg odds") &&
+                msg.Contains("Failed: Cannot update new leg odds") &&
                 msg.Contains("T3") && msg.Contains("T4")),
             Arg.Any<int>());
     }
