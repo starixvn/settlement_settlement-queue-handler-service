@@ -41,8 +41,7 @@ public class NotificationProcessingTests
                 return Task.FromResult(0);
             });
 
-        mockGetNotificationService.GetNotifications(maxOffset)
-            .Returns(notification);
+        mockGetNotificationService.GetNotifications(maxOffset).Returns(Task.FromResult(notification));
 
         await service.ProcessNotifications();
 
@@ -70,8 +69,7 @@ public class NotificationProcessingTests
                 return Task.FromResult(0);
             });
 
-        mockGetNotificationService.GetNotifications(maxOffset)
-            .Returns((Notification?)null!);
+        mockGetNotificationService.GetNotifications(maxOffset).Returns(Task.FromResult<Notification>(null!));
 
         await Assert.ThrowsAsync<NullReferenceException>(async () => await service.ProcessNotifications());
         await mockRepository.Received(1).ExecuteAsync(Arg.Any<GetOffsetCriteria>());
@@ -92,8 +90,7 @@ public class NotificationProcessingTests
                 return Task.FromResult(0);
             });
 
-        mockGetNotificationService.GetNotifications(maxOffset)
-            .Returns(notification);
+        mockGetNotificationService.GetNotifications(maxOffset).Returns(Task.FromResult(notification));
 
         await service.ProcessNotifications();
 
@@ -126,8 +123,7 @@ public class NotificationProcessingTests
                 return Task.FromResult(0);
             });
 
-        mockGetNotificationService.GetNotifications(maxOffset)
-            .Returns(notification);
+        mockGetNotificationService.GetNotifications(maxOffset).Returns(Task.FromResult(notification));
 
         await service.ProcessNotifications();
 
@@ -159,8 +155,7 @@ public class NotificationProcessingTests
                 return Task.FromResult(0);
             });
 
-        mockGetNotificationService.GetNotifications(Arg.Any<long>())
-            .Returns(notification1, notification2);
+        mockGetNotificationService.GetNotifications(Arg.Any<long>()).Returns(Task.FromResult(notification1), Task.FromResult(notification2));
 
         await service.ProcessNotifications();
         await service.ProcessNotifications();

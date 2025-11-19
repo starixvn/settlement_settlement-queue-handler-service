@@ -25,9 +25,9 @@ services.AddSharedServices();
 services.AddFanexLogSentry(builder.Configuration);
 services.AddAutoMapper();
 services.AddRedisCacheConfig(builder.Configuration);
+services.AddOneBookUmForService(builder.Configuration);
 services.AddHostedService<AutoJackTimeService>();
 services.AddHostedService<GetNotificationService>();
-services.AddOneBookUmForService(builder.Configuration);
 services.AddFanexLogSentry(configuration);
 services.AddSiteDbConnectionManager();
 
