@@ -4,6 +4,8 @@ public class AppSettingsKey
 {
     public ThirdPartySettingKeys ThirdPartyUri { get; set; }
 
+    public string InternalApiURL { get; set; }
+
     public string EnvironmentName { get; set; }
 }
 

@@ -1,6 +1,6 @@
 using NSubstitute;
 using Settlement.JackTime.Models;
-using Settlement.JackTime.Services;
+using Settlement.JackTime.Services.JackTime;
 using Settlement.Shared.Models;
 using Xunit;
 

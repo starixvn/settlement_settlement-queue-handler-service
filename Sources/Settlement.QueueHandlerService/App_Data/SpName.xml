@@ -1,13 +1,38 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Functions SiteName="NAP - Settlement site">
-  <Function Name="CashoutSel">
-    <Setting Key="NAP_Settlement_1_CashoutSel" SpName="NAP_Settlement_1_CashoutSel" DbName="DBTXN.bodb02.wsv_nap" />
-    <Setting Key="NAP_Set_MatchSelInfo" SpName="NAP_Set_MatchSelInfo" DbName="DBPRO.bodb02.wsv_nap" />
-    <Setting Key="WriteLog_UserLog_Settle" SpName="WriteLog_UserLog_Settle" DbName="DBLOG.bodb_CustomerLog.wsv_nap" />
-  </Function>
-  <Function Name="NAP_Settlement_1_CashoutTicketSel">
-    <Setting Key="NAP_Settlement_1_CashoutTicketSel_DBSITE01" SpName="NAP_Settlement_1_CashoutTicketSel" DbName="DBSITE01.bodb02.wsv_nap" />
-    <Setting Key="NAP_Settlement_1_CashoutTicketSel_DBSITE02" SpName="NAP_Settlement_1_CashoutTicketSel" DbName="DBSITE02.bodb02.wsv_nap" />
-    <Setting Key="NAP_Settlement_1_CashoutTicketSel_DBSITE03" SpName="NAP_Settlement_1_CashoutTicketSel" DbName="DBSITE03.bodb02.wsv_nap" />
-  </Function>
+	<Function Name="CashoutSel">
+		<Setting Key="NAP_Settlement_1_CashoutSel" SpName="NAP_Settlement_1_CashoutSel" DbName="DBTXN.bodb02.wsv_nap" />
+		<Setting Key="NAP_Set_MatchSelInfo" SpName="NAP_Set_MatchSelInfo" DbName="DBPRO.bodb02.wsv_nap" />
+		<Setting Key="WriteLog_UserLog_Settle" SpName="WriteLog_UserLog_Settle" DbName="DBLOG.bodb_CustomerLog.wsv_nap" />
+	</Function>
+	<Function Name="NAP_Settlement_1_CashoutTicketSel">
+		<Setting Key="NAP_Settlement_1_CashoutTicketSel_DBSITE01" SpName="NAP_Settlement_1_CashoutTicketSel" DbName="DBSITE01.bodb02.wsv_nap" />
+		<Setting Key="NAP_Settlement_1_CashoutTicketSel_DBSITE02" SpName="NAP_Settlement_1_CashoutTicketSel" DbName="DBSITE02.bodb02.wsv_nap" />
+		<Setting Key="NAP_Settlement_1_CashoutTicketSel_DBSITE03" SpName="NAP_Settlement_1_CashoutTicketSel" DbName="DBSITE03.bodb02.wsv_nap" />
+	</Function>
+
+	<Function Name="HybridParlay">
+		<Setting Key="NAP_Admin_HybridParlayLog_Ins" SpName="NAP_Admin_HybridParlayLog_Ins" DbName="DBTXN.bodb02.wsv_nap" />
+		<Setting Key="NAP_Admin_HybridParlayLogOffset_Sel" SpName="NAP_Admin_HybridParlayLogOffset_Sel" DbName="DBTXN.bodb02.wsv_nap" />
+		<Setting Key="NAP_Admin_HybridParlayLog_Sel" SpName="NAP_Admin_HybridParlayLog_Sel" DbName="DBTXN.bodb02.wsv_nap" />
+
+		<Setting Key="NAP_Admin_Calculate_HybridParlay_DBTXN" SpName="NAP_Admin_Calculate_HybridParlay" DbName="DBTXN.bodb02.wsv_nap" />
+		<Setting Key="NAP_Admin_Calculate_HybridParlay_DBSITE01" SpName="NAP_Admin_Calculate_HybridParlay" DbName="DBSITE01.bodb02.wsv_nap" />
+		<Setting Key="NAP_Admin_Calculate_HybridParlay_DBSITE02" SpName="NAP_Admin_Calculate_HybridParlay" DbName="DBSITE02.bodb02.wsv_nap" />
+		<Setting Key="NAP_Admin_Calculate_HybridParlay_DBSITE03" SpName="NAP_Admin_Calculate_HybridParlay" DbName="DBSITE03.bodb02.wsv_nap" />
+
+		<Setting Key="NAP_Admin_HybridParlay_LegOddsUpd_DBTXN" SpName="NAP_Admin_HybridParlay_LegOddsUpd" DbName="DBTXN.bodb02.wsv_nap" />
+		<Setting Key="NAP_Admin_HybridParlay_LegOddsUpd_DBSITE01" SpName="NAP_Admin_HybridParlay_LegOddsUpd" DbName="DBSITE01.bodb02.wsv_nap" />
+		<Setting Key="NAP_Admin_HybridParlay_LegOddsUpd_DBSITE02" SpName="NAP_Admin_HybridParlay_LegOddsUpd" DbName="DBSITE02.bodb02.wsv_nap" />
+		<Setting Key="NAP_Admin_HybridParlay_LegOddsUpd_DBSITE03" SpName="NAP_Admin_HybridParlay_LegOddsUpd" DbName="DBSITE03.bodb02.wsv_nap" />
+
+		<Setting Key="NAP_Set_HybridParlay_Validate_DBTXN" SpName="NAP_Set_HybridParlay_Validate" DbName="DBTXN.bodb02.wsv_nap" />
+		<Setting Key="NAP_Set_HybridParlay_Validate_DBSITE01" SpName="NAP_Set_HybridParlay_Validate" DbName="DBSITE01.bodb02.wsv_nap" />
+		<Setting Key="NAP_Set_HybridParlay_Validate_DBSITE02" SpName="NAP_Set_HybridParlay_Validate" DbName="DBSITE02.bodb02.wsv_nap" />
+		<Setting Key="NAP_Set_HybridParlay_Validate_DBSITE03" SpName="NAP_Set_HybridParlay_Validate" DbName="DBSITE03.bodb02.wsv_nap" />
+	</Function>
+
+	<Function Name="Common">
+		<Setting Key="NAP_Set_LetstalkMessage_Insert" SpName="NAP_Set_LetstalkMessage_Insert" DbName="DBTXN.bodb02.wsv_nap" />
+	</Function>
 </Functions>

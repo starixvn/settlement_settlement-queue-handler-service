@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using Fanex.Data.Repository;
 using Fanex.Logging;
 using Fanex.Settlement.MessageBridge.JackTime;
 using MassTransit;
@@ -51,7 +50,6 @@ public class SoccerJackTimeConsumer(
         }
     }
 
-
     private async Task LogMarket(IEnumerable<Market> markets, SoccerResult context)
     {
         var message = $"Action: {context.Action}, Markets: {JsonConvert.SerializeObject(markets)}";
@@ -66,7 +64,6 @@ public class SoccerJackTimeConsumer(
         await repository.ExecuteAsync(criteria);
     }
 }
-
 
 public class MyConsumerDefinition : ConsumerDefinition<SoccerJackTimeConsumer>
 {

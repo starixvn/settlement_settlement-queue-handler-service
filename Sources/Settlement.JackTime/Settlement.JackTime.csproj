@@ -20,15 +20,19 @@
     <PackageReference Include="Fanex.Logging.Extensions.Database" Version="2.0.2.1" />
     <PackageReference Include="Fanex.MailDeliver.MailClient" Version="2.1.0" />
     <PackageReference Include="Fanex.RemotingRef" Version="1.5.5.1" />
-    <PackageReference Include="Fanex.Settlement.MessageBridge" Version="1.0.11" />
+    <PackageReference Include="Fanex.Settlement.MessageBridge" Version="1.0.15" />
     <PackageReference Include="Fanex.SiteDbConnectionManager.Client" Version="1.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.9" />
-    <PackageReference Include="MassTransit" Version="8.5.2" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.0" />
+    <PackageReference Include="MassTransit" Version="8.5.5" />
     <PackageReference Include="RazorEngineCore" Version="2024.4.1" />
     <PackageReference Include="Fanex.Caching.Redis" Version="2.2.8" />
   </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\Settlement.Shared\Settlement.Shared.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="Services\Hybrid\" />
   </ItemGroup>
 </Project> 

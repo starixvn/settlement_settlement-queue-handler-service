@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Fanex.Data.Repository;
 using Fanex.Settlement.MessageBridge.JackTime;
 using Newtonsoft.Json;
 using Settlement.Consumer.Criteria;

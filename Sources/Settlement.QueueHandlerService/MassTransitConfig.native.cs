@@ -9,11 +9,11 @@ public static class MassTransitConfig
     {
         var rabbitHost = configuration["RabbitMQ:Host"];
         var virtualHost = configuration["RabbitMQ:VirtualHost"];
-        var endpoints = configuration.GetSection("RabbitMQ:Endpoints").Get<List<string>>();
 
         services.AddMassTransit(busConfigurator =>
         {
             busConfigurator.AddConsumer<SoccerJackTimeConsumer, MyConsumerDefinition>();
+            busConfigurator.AddConsumer<HybridParlayConsumer, JackTimeHybridConsumerDefinition>();
 
             busConfigurator.UsingRabbitMq((context, busFactoryConfigurator) =>
             {

@@ -8,7 +8,7 @@ namespace Settlement.Shared.Services;
 
 public interface IHandleResponseService
 {
-    public Task HandleVoidBetResponse(HttpResponseMessage response, VoidBetApiModel model, int matchId);
+    Task HandleVoidBetResponse(HttpResponseMessage response, VoidBetApiModel model, int matchId);
 
     Task HandleUpdateResultResponse(HttpResponseMessage response, IEnumerable<Market> markets, int matchId);
 }

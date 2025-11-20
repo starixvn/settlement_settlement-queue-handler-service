@@ -8,10 +8,12 @@ public class Match
 
     public int LeagueId { get; set; }
 
-    public IList<VoidBetInfo> VoidBetInfos { get; set; } = new List<VoidBetInfo>();
+    public IList<VoidBetInfo> VoidBetInfos { get; set; } = [];
 
     public override bool Equals(object obj)
     {
         return obj is Match match && match.MatchId == MatchId;
     }
+
+    public override int GetHashCode() => MatchId.GetHashCode();
 }

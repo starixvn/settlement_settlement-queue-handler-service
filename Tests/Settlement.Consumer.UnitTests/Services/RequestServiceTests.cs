@@ -5,6 +5,7 @@ using NSubstitute;
 using Settlement.Consumer.Constants;
 using Settlement.Consumer.Models.SoccerJackTime;
 using Settlement.Consumer.Services;
+using Settlement.Shared.Constants;
 using Settlement.Shared.Models;
 using Settlement.Shared.Services;
 using SharpRaven;
@@ -66,7 +67,7 @@ public class RequestServiceTests
     public async Task GetMarkets_WhenApiFails_ReturnsEmpty()
     {
         // Arrange
-        api.GetAsync<SoccerMarketItem>(Arg.Any<string>()).Returns((SoccerMarketItem)null);
+        api.GetAsync<SoccerMarketItem>(Arg.Any<string>()).Returns((SoccerMarketItem?)null!);
 
         // Act
         var result = await service.GetMarkets(10);
@@ -119,6 +120,3 @@ public class RequestServiceTests
         Assert.Contains(req.Markets, m => m.Market.BetType == 2 && m.WayScores.Any(ws => ws.Id == 9 && ws.Outcome == 0));
     }
 }
-
-
-

@@ -1,12 +1,9 @@
-﻿using Fanex.Logging;
-using Fanex.Logging;
-using Fanex.Settlement.MessageBridge.JackTime.Constants;
+﻿using Fanex.Settlement.MessageBridge.JackTime.Constants;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using Settlement.Shared.Models;
 using Settlement.Shared.Services;
 
-namespace Settlement.JackTime.Services;
+namespace Settlement.JackTime.Services.JackTime;
 
 public interface IRequestService
 {
@@ -30,11 +27,8 @@ public class RequestService(
             {
                 VoidBetInfos = voidBetByAction
             };
-            await LogService.InfoAsync(
-                $"Soccer JackTime Ticket Match {matchId} Send Request : {JsonConvert.SerializeObject(voidBetByAction)}");
+
             var response = await invokeExternalApi.PostAsync(voidBetApiModel, apiUri);
-            await LogService.InfoAsync(
-                $"Soccer JackTime Ticket Match {matchId} Response : {JsonConvert.SerializeObject(response)}");
             await handleResponseService.HandleVoidBetResponse(response, voidBetApiModel, matchId);
         }
     }

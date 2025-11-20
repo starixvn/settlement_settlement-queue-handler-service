@@ -14,17 +14,18 @@
     <PackageReference Include="Fanex.Logging" Version="2.0.2" />
     <PackageReference Include="Fanex.MailDeliver.MailClient" Version="2.1.0" />
     <PackageReference Include="Fanex.RemotingRef" Version="1.5.5.1" />
-    <PackageReference Include="Fanex.Settlement.MessageBridge" Version="1.0.11" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="MassTransit.RabbitMQ" Version="8.5.2" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.9" />
-    <PackageReference Include="MassTransit" Version="8.5.2" />
-    <PackageReference Include="Polly" Version="8.6.3" />
+    <PackageReference Include="Fanex.Settlement.MessageBridge" Version="1.0.15" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="8.5.5" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.0" />
+    <PackageReference Include="MassTransit" Version="8.5.5" />
+    <PackageReference Include="Polly" Version="8.6.4" />
     <PackageReference Include="RazorEngineCore" Version="2024.4.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Settlement.Shared\Settlement.Shared.csproj" />
+    <ProjectReference Include="..\Settlement.JackTime\Settlement.JackTime.csproj" />
   </ItemGroup>
 
 </Project>

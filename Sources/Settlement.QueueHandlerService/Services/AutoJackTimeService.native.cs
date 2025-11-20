@@ -6,39 +6,18 @@ namespace Settlement.QueueHandlerService.Services;
 public class AutoJackTimeService(
     IJackTimeController jackTimeController,
     IConfiguration configuration,
-    IMaintenanceService maintenanceService)
-    : BackgroundService
+    IMaintenanceService maintenanceService,
+    ILogger<AutoJackTimeService> logger)
+    : BaseSettlementService(configuration, maintenanceService, logger)
 {
-    private int counter;
-
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ProcessAsync()
     {
-        using PeriodicTimer timer = new(TimeSpan.FromMilliseconds(configuration.GetValue<int>("ServiceInterval")));
-
-        while (await timer.WaitForNextTickAsync(stoppingToken))
-        {
-            await HandleAutoAsync();
-        }
+        await jackTimeController.ProcessAsync();
     }
 
-    private async Task HandleAutoAsync()
-    {
-        var isMaintenance = await maintenanceService.IsUnderMaintenanceAsync();
-        if (!isMaintenance)
-        {
-            await jackTimeController.ProcessAsync();
-            HandleGarbageCollector();
-        }
-    }
+    protected override string ServiceIntervalConfigKey => "ServiceInterval";
 
-    private void HandleGarbageCollector()
-    {
-        if (counter >= configuration.GetValue<int>("GarbageCollectorInterval"))
-        {
-            counter = 0;
-            GC.WaitForPendingFinalizers();
-        }
+    protected override int DefaultServiceIntervalMs => 5000;
 
-        counter += configuration.GetValue<int>("ServiceInterval");
-    }
+    protected override string ServiceName => "Settlement.AutoJackTime";
 }
