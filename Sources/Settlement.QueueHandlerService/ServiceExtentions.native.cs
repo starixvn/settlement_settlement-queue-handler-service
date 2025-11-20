@@ -35,7 +35,7 @@ public static class ServiceExtensions
         var connectionString = configuration.GetValue<string>("Fanex.Caching.Redis:ConnectionString");
         var applicationName = configuration.GetValue<string>("Fanex.Caching.Redis:ApplicationName");
 
-        services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect($"{connectionString},ChannelPrefix={applicationName}"));
+        services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect($"{connectionString}"));
         services.AddSingleton<ICache>(new RedisCache(new RedisCacheOptions
         {
             ConnectionString = connectionString,
