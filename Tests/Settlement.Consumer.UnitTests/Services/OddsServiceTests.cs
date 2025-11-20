@@ -92,7 +92,7 @@ public class OddsServiceTests
         var result = await service.GetOdds(matchId, logDate, transIds);
 
         Assert.Empty(result);
-        await mockRepository.Received(6).FetchAsync<OddModel>(Arg.Any<HybridParlayLogSelCriteria>());
+        await mockRepository.Received(11).FetchAsync<OddModel>(Arg.Any<HybridParlayLogSelCriteria>());
     }
 
     [Fact]
@@ -148,7 +148,7 @@ public class OddsServiceTests
         var result = await service.GetOdds(matchId, logDate, transIds);
 
         Assert.Equal(2, result.Count);
-        await mockRepository.Received(6).FetchAsync<OddModel>(Arg.Any<HybridParlayLogSelCriteria>());
+        await mockRepository.Received(11).FetchAsync<OddModel>(Arg.Any<HybridParlayLogSelCriteria>());
     }
 
     [Fact]

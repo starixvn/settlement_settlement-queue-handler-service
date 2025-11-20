@@ -10,11 +10,11 @@ namespace Settlement.Consumer.Services;
 
 public interface HybridParlayService
 {
-    Task<TaskResult> GetOddsAndInvalidTransId(int matchId, DateTimeOffset logDate, string transIds);
+    Task<TaskResult> GetOddsAndInvalidTransId(int matchId, DateTimeOffset logDate, List<TranInfo> originalTransId);
 
-    Task<string> GetHyBridTransId(int matchId, string action);
+    Task<List<TranInfo>> GetHyBridTransId(int matchId, string action);
 
-    Task UpdateOddsAndSettle(HybridMatch hybridMatch, IEnumerable<OddModel> odds);
+    Task UpdateOddsAndSettle(HybridMatch hybridMatch, IEnumerable<OddModel> odds, List<TranInfo> originalTransId);
 }
 
 public class HybridParlayServiceImp(
@@ -27,8 +27,9 @@ public class HybridParlayServiceImp(
 
     private const int RetryDelayMilliseconds = 3000;
 
-    public async Task<TaskResult> GetOddsAndInvalidTransId(int matchId, DateTimeOffset logDate, string transIds)
+    public async Task<TaskResult> GetOddsAndInvalidTransId(int matchId, DateTimeOffset logDate, List<TranInfo> originalTransId)
     {
+        var transIds = string.Join(",", originalTransId.Select(t => t.TransId));
         var oddsResults = await oddsService.GetOdds(matchId, logDate, transIds);
 
         var inputTransIds = transIds.Split(',').Select(t => t.Trim()).ToList();
@@ -39,7 +40,7 @@ public class HybridParlayServiceImp(
         return (oddsResults, invalidTransIds);
     }
 
-    public async Task<string> GetHyBridTransId(int matchId, string action)
+    public async Task<List<TranInfo>> GetHyBridTransId(int matchId, string action)
     {
         var siteDbServer = await siteDbClientService.GetActiveSiteDbAsync();
         var tasks = siteDbServer
@@ -47,8 +48,7 @@ public class HybridParlayServiceImp(
             .ToList();
 
         var results = await Task.WhenAll(tasks);
-        var listTransIds = results.SelectMany(r => r);
-        return string.Join(",", listTransIds.Select(t => t.TransId));
+        return [.. results.SelectMany(x => x)];
     }
 
     private async Task<IEnumerable<TranInfo>> FetchTranInfoWithRetry(int matchId, string action, string siteName)
@@ -78,7 +78,7 @@ public class HybridParlayServiceImp(
         return results;
     }
 
-    public async Task UpdateOddsAndSettle(HybridMatch hybridMatch, IEnumerable<OddModel> odds)
+    public async Task UpdateOddsAndSettle(HybridMatch hybridMatch, IEnumerable<OddModel> odds, List<TranInfo> originalTransId)
     {
         if (odds.Any())
         {
@@ -86,15 +86,15 @@ public class HybridParlayServiceImp(
             var tasks = siteDbServer.Select(s => UpdateOddsAndSettleBySiteDb(hybridMatch, odds, s.SiteName));
 
             var results = await Task.WhenAll(tasks);
-            var listTransIds = results.ToList();
+            var transIds = results.ToList();
 
-            var hasInvalidTransIds = listTransIds.Exists(v =>
+            var hasInvalidTransIds = transIds.Exists(v =>
                 !string.IsNullOrEmpty(v.WrongOddsTransIds) ||
                 !string.IsNullOrEmpty(v.InvalidTransIds));
 
             if (hasInvalidTransIds)
             {
-                await hybridParlayLogService.InvalidTransIdsSendLetstalk(hybridMatch, listTransIds);
+                await hybridParlayLogService.InvalidTransIdsUpdateOdds(hybridMatch, transIds, originalTransId);
             }
         }
     }

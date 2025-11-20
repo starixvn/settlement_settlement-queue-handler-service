@@ -16,7 +16,7 @@ public interface OddsService
 
 public class OddsServiceImp(IDynamicRepository repository) : OddsService
 {
-    private const int RetryCount = 5;
+    private const int RetryCount = 10;
 
     private const int RetryDelayMilliseconds = 3000;
 

@@ -20,16 +20,16 @@ public class HybridParlayConsumer(
 
             await LogService.InfoAsync($"JackTime Hybrid Consumer Started: MatchId({matchId})");
 
-            var transId = await hybridParlayService.GetHyBridTransId(matchId, hybridMatch.Action);
-            if (!string.IsNullOrEmpty(transId))
+            var originalTransId = await hybridParlayService.GetHyBridTransId(matchId, hybridMatch.Action);
+            if (originalTransId.Count > 0)
             {
-                var (Odds, InvalidTransId) = await hybridParlayService.GetOddsAndInvalidTransId(matchId, hybridMatch.LogDate, transId);
+                var (Odds, InvalidTransId) = await hybridParlayService.GetOddsAndInvalidTransId(matchId, hybridMatch.LogDate, originalTransId);
 
-                await hybridParlayLogService.InvalidTransIdsWriteLogAndSendLetstalk(hybridMatch, InvalidTransId);
+                await hybridParlayLogService.InvalidTransIdsFetchNewOdds(hybridMatch, InvalidTransId, originalTransId);
 
                 await LogService.InfoAsync($"JackTime Hybrid Consumer Get Odds: MatchId({matchId}) - {JsonConvert.SerializeObject(Odds)}");
 
-                await hybridParlayService.UpdateOddsAndSettle(hybridMatch, Odds);
+                await hybridParlayService.UpdateOddsAndSettle(hybridMatch, Odds, originalTransId);
             }
         }
         catch (Exception e)

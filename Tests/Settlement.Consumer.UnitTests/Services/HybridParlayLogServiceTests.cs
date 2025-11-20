@@ -2,6 +2,7 @@ using Fanex.Data.Repository;
 using Fanex.Settlement.MessageBridge.JackTime;
 using NSubstitute;
 using Settlement.Consumer.Criteria;
+using Settlement.Consumer.Models.JackTimeHybrid;
 using Settlement.Consumer.Services;
 using Settlement.JackTime.Models;
 using Settlement.Shared.Services;
@@ -31,8 +32,14 @@ public class HybridLogServiceTests
             UserId = 456
         };
         var transIds = new List<string> { "T1", "T2", "T3" };
+        var originalTransId = new List<TranInfo>
+        {
+            new() { TransId = "T1", IsCredit = false },
+            new() { TransId = "T2", IsCredit = false },
+            new() { TransId = "T3", IsCredit = true }
+        };
 
-        await service.InvalidTransIdsWriteLogAndSendLetstalk(hybridMatch, transIds);
+        await service.InvalidTransIdsFetchNewOdds(hybridMatch, transIds, originalTransId);
 
         await mockRepository.Received(1).ExecuteAsync(
             Arg.Is<LogCriteria>(c =>
@@ -43,7 +50,10 @@ public class HybridLogServiceTests
             hybridMatch.UserId,
             "Get new Leg Odds",
             Arg.Is<string>(msg =>
-                msg.Contains("T1, T2, T3")), Arg.Any<int>());
+                msg.Contains("Licensee TransId") &&
+                msg.Contains("T1") && msg.Contains("T2") &&
+                msg.Contains("Credit TransId") &&
+                msg.Contains("T3")), Arg.Any<int>());
     }
 
     [Fact]
@@ -55,8 +65,9 @@ public class HybridLogServiceTests
             UserId = 456
         };
         var transIds = new List<string>();
+        var originalTransId = new List<TranInfo>();
 
-        await service.InvalidTransIdsWriteLogAndSendLetstalk(hybridMatch, transIds);
+        await service.InvalidTransIdsFetchNewOdds(hybridMatch, transIds, originalTransId);
 
         await mockRepository.DidNotReceive().ExecuteAsync(Arg.Any<LogCriteria>());
         await mockLetsTalkService.DidNotReceive().SendMessage(
@@ -80,8 +91,14 @@ public class HybridLogServiceTests
             new() { WrongOddsTransIds = "T1, T2" },
             new() { WrongOddsTransIds = "T3" }
         };
+        var originalTransId = new List<TranInfo>
+        {
+            new() { TransId = "T1", IsCredit = false },
+            new() { TransId = "T2", IsCredit = false },
+            new() { TransId = "T3", IsCredit = true }
+        };
 
-        await service.InvalidTransIdsSendLetstalk(hybridMatch, validationTransIds);
+        await service.InvalidTransIdsUpdateOdds(hybridMatch, validationTransIds, originalTransId);
 
         await mockLetsTalkService.Received(1).SendMessage(
             hybridMatch.MatchId,
@@ -89,7 +106,10 @@ public class HybridLogServiceTests
             "Get new Leg Odds",
             Arg.Is<string>(msg =>
                 msg.Contains("Failed: Cannot settle due to invalid leg odds") &&
-                msg.Contains("T1") && msg.Contains("T2") && msg.Contains("T3")), Arg.Any<int>());
+                msg.Contains("Licensee TransId") &&
+                msg.Contains("T1") && msg.Contains("T2") &&
+                msg.Contains("Credit TransId") &&
+                msg.Contains("T3")), Arg.Any<int>());
     }
 
     [Fact]
@@ -104,8 +124,9 @@ public class HybridLogServiceTests
         {
             new() { WrongOddsTransIds = string.Empty, InvalidTransIds = string.Empty }
         };
+        var originalTransId = new List<TranInfo>();
 
-        await service.InvalidTransIdsSendLetstalk(hybridMatch, validationTransIds);
+        await service.InvalidTransIdsUpdateOdds(hybridMatch, validationTransIds, originalTransId);
 
         await mockLetsTalkService.DidNotReceive().SendMessage(
             Arg.Any<int>(),
@@ -128,8 +149,14 @@ public class HybridLogServiceTests
             new() { WrongOddsTransIds = string.Empty, InvalidTransIds = "T4, T5" },
             new() { WrongOddsTransIds = string.Empty, InvalidTransIds = "T6" }
         };
+        var originalTransId = new List<TranInfo>
+        {
+            new() { TransId = "T4", IsCredit = false },
+            new() { TransId = "T5", IsCredit = false },
+            new() { TransId = "T6", IsCredit = true }
+        };
 
-        await service.InvalidTransIdsSendLetstalk(hybridMatch, validationTransIds);
+        await service.InvalidTransIdsUpdateOdds(hybridMatch, validationTransIds, originalTransId);
 
         await mockLetsTalkService.Received(1).SendMessage(
             hybridMatch.MatchId,
@@ -137,7 +164,10 @@ public class HybridLogServiceTests
             "Get new Leg Odds",
             Arg.Is<string>(msg =>
                 msg.Contains("Failed: Cannot update new leg odds") &&
-                msg.Contains("T4") && msg.Contains("T5") && msg.Contains("T6")), Arg.Any<int>());
+                msg.Contains("Licensee TransId") &&
+                msg.Contains("T4") && msg.Contains("T5") &&
+                msg.Contains("Credit TransId") &&
+                msg.Contains("T6")), Arg.Any<int>());
     }
 
     [Fact]
@@ -152,8 +182,15 @@ public class HybridLogServiceTests
         {
             new() { WrongOddsTransIds = "T1, T2", InvalidTransIds = "T3, T4" }
         };
+        var originalTransId = new List<TranInfo>
+        {
+            new() { TransId = "T1", IsCredit = false },
+            new() { TransId = "T2", IsCredit = true },
+            new() { TransId = "T3", IsCredit = false },
+            new() { TransId = "T4", IsCredit = true }
+        };
 
-        await service.InvalidTransIdsSendLetstalk(hybridMatch, validationTransIds);
+        await service.InvalidTransIdsUpdateOdds(hybridMatch, validationTransIds, originalTransId);
 
         await mockLetsTalkService.Received(2).SendMessage(
             hybridMatch.MatchId,
@@ -168,7 +205,10 @@ public class HybridLogServiceTests
             "Get new Leg Odds",
             Arg.Is<string>(msg =>
                 msg.Contains("Failed: Cannot settle due to invalid leg odds") &&
-                msg.Contains("T1") && msg.Contains("T2")),
+                msg.Contains("Licensee TransId") &&
+                msg.Contains("T1") &&
+                msg.Contains("Credit TransId") &&
+                msg.Contains("T2")),
             Arg.Any<int>());
 
         await mockLetsTalkService.Received(1).SendMessage(
@@ -177,7 +217,10 @@ public class HybridLogServiceTests
             "Get new Leg Odds",
             Arg.Is<string>(msg =>
                 msg.Contains("Failed: Cannot update new leg odds") &&
-                msg.Contains("T3") && msg.Contains("T4")),
+                msg.Contains("Licensee TransId") &&
+                msg.Contains("T3") &&
+                msg.Contains("Credit TransId") &&
+                msg.Contains("T4")),
             Arg.Any<int>());
     }
 }

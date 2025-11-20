@@ -7,4 +7,6 @@ public class ValidationTransIds
     public string WrongOddsTransIds { get; set; }
 
     public string InvalidTransIds { get; set; }
+
+    public bool IsCredit { get; set; }
 }

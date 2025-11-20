@@ -1,5 +1,6 @@
 using Fanex.Settlement.MessageBridge.JackTime;
 using Settlement.Consumer.Criteria;
+using Settlement.Consumer.Models.JackTimeHybrid;
 using Settlement.JackTime.Models;
 using Settlement.Shared.Constants;
 using Settlement.Shared.Services;
@@ -8,9 +9,9 @@ namespace Settlement.Consumer.Services;
 
 public interface HybridParlayLogService
 {
-    Task InvalidTransIdsWriteLogAndSendLetstalk(HybridMatch hybridMatch, List<string> transIds);
+    Task InvalidTransIdsFetchNewOdds(HybridMatch hybridMatch, List<string> transIds, List<TranInfo> originalTransId);
 
-    Task InvalidTransIdsSendLetstalk(HybridMatch hybridMatch, List<ValidationTransIds> validationTransIds);
+    Task InvalidTransIdsUpdateOdds(HybridMatch hybridMatch, List<ValidationTransIds> validationTransIds, List<TranInfo> originalTransId);
 }
 
 public class HybridParlayLogServiceImp(ILetsTalkService letsTalkService, IDynamicRepository repository) : HybridParlayLogService
@@ -19,53 +20,80 @@ public class HybridParlayLogServiceImp(ILetsTalkService letsTalkService, IDynami
 
     private const string ActionName = "Get new Leg Odds";
 
-    public async Task InvalidTransIdsWriteLogAndSendLetstalk(HybridMatch hybridMatch, List<string> transIds)
+    public async Task InvalidTransIdsFetchNewOdds(HybridMatch hybridMatch, List<string> transIds, List<TranInfo> originalTransId)
     {
         if (transIds.Count > 0)
         {
-            var message = $"Failed: Cannot get new leg odds, some of the following TransIds might not be settled.{Environment.NewLine}TransIds: {string.Join(", ", transIds)}";
+            var filteredOriginalTransId = originalTransId.Where(t => transIds.Contains(t.TransId)).ToList();
+            var contentMessage = $"Failed: Cannot get new leg odds, some of the following TransIds might not be settled.{Environment.NewLine}";
+            var message = BuildTransIdsMessage(filteredOriginalTransId, contentMessage);
             await WriteLog(hybridMatch.MatchId, message);
             await letsTalkService.SendMessage(hybridMatch.MatchId, hybridMatch.UserId, ActionName, message, MessageGroup.HybridParlay);
         }
     }
 
-    public async Task InvalidTransIdsSendLetstalk(HybridMatch hybridMatch, List<ValidationTransIds> validationTransIds)
+    private static string BuildTransIdsMessage(List<TranInfo> filteredListTransId, string contentMessage)
     {
-        var wrongOddsTransIds = ExtractTransIds(validationTransIds, v => v.WrongOddsTransIds);
-        if (!string.IsNullOrEmpty(wrongOddsTransIds))
+        var licenseeTransIds = filteredListTransId.Where(t => !t.IsCredit).Select(t => t.TransId).ToList();
+        var creditTransIds = filteredListTransId.Where(t => t.IsCredit).Select(t => t.TransId).ToList();
+
+        var messageParts = new List<string> { contentMessage };
+
+        if (licenseeTransIds.Count > 0)
         {
-            await SendInvalidLegOddsMessage(hybridMatch, wrongOddsTransIds);
+            messageParts.Add($"- Licensee TransId: {string.Join(", ", licenseeTransIds)}{Environment.NewLine}");
         }
 
-        var invalidTransIds = ExtractTransIds(validationTransIds, v => v.InvalidTransIds);
-        if (!string.IsNullOrEmpty(invalidTransIds))
+        if (creditTransIds.Count > 0)
         {
-            await SendInvalidTransIdsMessage(hybridMatch, invalidTransIds);
+            messageParts.Add($"- Credit TransId: {string.Join(", ", creditTransIds)}");
+        }
+
+        return string.Join("", messageParts);
+    }
+
+    public async Task InvalidTransIdsUpdateOdds(HybridMatch hybridMatch, List<ValidationTransIds> validationTransIds, List<TranInfo> originalTransId)
+    {
+        var wrongOddsTransIdsList = ExtractTransIdsList(validationTransIds, v => v.WrongOddsTransIds);
+        if (wrongOddsTransIdsList.Count > 0)
+        {
+            await SendInvalidLegOddsMessage(hybridMatch, wrongOddsTransIdsList, originalTransId);
+        }
+
+        var invalidTransIdsList = ExtractTransIdsList(validationTransIds, v => v.InvalidTransIds);
+        if (invalidTransIdsList.Count > 0)
+        {
+            await SendInvalidTransIdsMessage(hybridMatch, invalidTransIdsList, originalTransId);
         }
     }
 
-    private static string ExtractTransIds(
+    private static List<string> ExtractTransIdsList(
         List<ValidationTransIds> validationTransIds,
         Func<ValidationTransIds, string> propertySelector)
     {
         var transIds = validationTransIds
             .Where(v => !string.IsNullOrEmpty(propertySelector(v)))
             .SelectMany(v => propertySelector(v).Split(',').Select(t => t.Trim()))
-            .Distinct();
+            .Distinct()
+            .ToList();
 
-        return string.Join(", ", transIds);
+        return transIds;
     }
 
-    private async Task SendInvalidLegOddsMessage(HybridMatch hybridMatch, string transIds)
+    private async Task SendInvalidLegOddsMessage(HybridMatch hybridMatch, List<string> transIdsList, List<TranInfo> originalTransId)
     {
-        var message = $"Failed: Cannot settle due to invalid leg odds (leg odds > placed leg odds).{Environment.NewLine}TransIds: {transIds}";
+        var filteredOriginalTransId = originalTransId.Where(t => transIdsList.Contains(t.TransId)).ToList();
+        var contentMessage = $"Failed: Cannot settle due to invalid leg odds (leg odds > placed leg odds).{Environment.NewLine}";
+        var message = BuildTransIdsMessage(filteredOriginalTransId, contentMessage);
         await WriteLog(hybridMatch.MatchId, message);
         await letsTalkService.SendMessage(hybridMatch.MatchId, hybridMatch.UserId, ActionName, message, MessageGroup.HybridParlay);
     }
 
-    private async Task SendInvalidTransIdsMessage(HybridMatch hybridMatch, string transIds)
+    private async Task SendInvalidTransIdsMessage(HybridMatch hybridMatch, List<string> transIdsList, List<TranInfo> originalTransId)
     {
-        var message = $"Failed: Cannot update new leg odds, some of the following TransIds might not be settled.{Environment.NewLine}TransIds: {transIds}";
+        var filteredOriginalTransId = originalTransId.Where(t => transIdsList.Contains(t.TransId)).ToList();
+        var contentMessage = $"Failed: Cannot update new leg odds, some of the following TransIds might not be settled.{Environment.NewLine}";
+        var message = BuildTransIdsMessage(filteredOriginalTransId, contentMessage);
         await WriteLog(hybridMatch.MatchId, message);
         await letsTalkService.SendMessage(hybridMatch.MatchId, hybridMatch.UserId, ActionName, message, MessageGroup.HybridParlay);
     }

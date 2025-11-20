@@ -35,7 +35,12 @@ public class JackTimeHybridServiceTests
     {
         var matchId = 123;
         var logDate = DateTimeOffset.Now;
-        var transIds = "1,2,3";
+        var originalTransId = new List<TranInfo>
+        {
+            new() { TransId = "1" },
+            new() { TransId = "2" },
+            new() { TransId = "3" }
+        };
         var odds = new List<OddModel>
         {
             new(matchId, 1, 1.5m),
@@ -43,10 +48,10 @@ public class JackTimeHybridServiceTests
             new(matchId, 3, 2.5m)
         };
 
-        mockOddsService.GetOdds(matchId, logDate, transIds)
+        mockOddsService.GetOdds(matchId, logDate, "1,2,3")
             .Returns(odds);
 
-        var result = await service.GetOddsAndInvalidTransId(matchId, logDate, transIds);
+        var result = await service.GetOddsAndInvalidTransId(matchId, logDate, originalTransId);
 
         Assert.Equal(3, result.Odds.Count);
         Assert.Empty(result.InvalidTransId);
@@ -57,17 +62,23 @@ public class JackTimeHybridServiceTests
     {
         var matchId = 123;
         var logDate = DateTimeOffset.Now;
-        var transIds = "1,2,3,4";
+        var originalTransId = new List<TranInfo>
+        {
+            new() { TransId = "1" },
+            new() { TransId = "2" },
+            new() { TransId = "3" },
+            new() { TransId = "4" }
+        };
         var odds = new List<OddModel>
         {
             new(matchId, 1, 1.5m),
             new(matchId, 2, 2.0m)
         };
 
-        mockOddsService.GetOdds(matchId, logDate, transIds)
+        mockOddsService.GetOdds(matchId, logDate, "1,2,3,4")
             .Returns(odds);
 
-        var result = await service.GetOddsAndInvalidTransId(matchId, logDate, transIds);
+        var result = await service.GetOddsAndInvalidTransId(matchId, logDate, originalTransId);
 
         Assert.Equal(2, result.Odds.Count);
         Assert.Equal(2, result.InvalidTransId.Count);
@@ -80,13 +91,18 @@ public class JackTimeHybridServiceTests
     {
         var matchId = 123;
         var logDate = DateTimeOffset.Now;
-        var transIds = "1,2,3";
+        var originalTransId = new List<TranInfo>
+        {
+            new() { TransId = "1" },
+            new() { TransId = "2" },
+            new() { TransId = "3" }
+        };
         var emptyOdds = new List<OddModel>();
 
-        mockOddsService.GetOdds(matchId, logDate, transIds)
+        mockOddsService.GetOdds(matchId, logDate, "1,2,3")
             .Returns(emptyOdds);
 
-        var result = await service.GetOddsAndInvalidTransId(matchId, logDate, transIds);
+        var result = await service.GetOddsAndInvalidTransId(matchId, logDate, originalTransId);
 
         Assert.Empty(result.Odds);
         Assert.Equal(3, result.InvalidTransId.Count);
@@ -100,17 +116,22 @@ public class JackTimeHybridServiceTests
     {
         var matchId = 123;
         var logDate = DateTimeOffset.Now;
-        var transIds = "1, 2 , 3";
+        var originalTransId = new List<TranInfo>
+        {
+            new() { TransId = "1" },
+            new() { TransId = "2" },
+            new() { TransId = "3" }
+        };
         var odds = new List<OddModel>
         {
             new(matchId, 1, 1.5m),
             new(matchId, 2, 2.0m)
         };
 
-        mockOddsService.GetOdds(matchId, logDate, transIds)
+        mockOddsService.GetOdds(matchId, logDate, "1,2,3")
             .Returns(odds);
 
-        var result = await service.GetOddsAndInvalidTransId(matchId, logDate, transIds);
+        var result = await service.GetOddsAndInvalidTransId(matchId, logDate, originalTransId);
 
         Assert.Equal(2, result.Odds.Count);
         Assert.Single(result.InvalidTransId);
@@ -148,11 +169,14 @@ public class JackTimeHybridServiceTests
         mockOddsService.UpdateOdds(odds, "Server1", hybridMatch.UserId, hybridMatch.MatchId)
             .Returns(validationTransIds);
 
-        await service.UpdateOddsAndSettle(hybridMatch, odds);
+        var originalTransId = new List<TranInfo>();
 
-        await mockHybridLogService.Received(1).InvalidTransIdsSendLetstalk(
+        await service.UpdateOddsAndSettle(hybridMatch, odds, originalTransId);
+
+        await mockHybridLogService.Received(1).InvalidTransIdsUpdateOdds(
             hybridMatch,
-            Arg.Is<List<ValidationTransIds>>(list => list.Count == 1 && list[0].WrongOddsTransIds == "1,2"));
+            Arg.Is<List<ValidationTransIds>>(list => list.Count == 1 && list[0].WrongOddsTransIds == "1,2"),
+            Arg.Any<List<TranInfo>>());
     }
 
     [Fact]
@@ -187,7 +211,9 @@ public class JackTimeHybridServiceTests
         mockOddsService.UpdateOdds(odds, "Server1", hybridMatch.UserId, hybridMatch.MatchId)
             .Returns(validationTransIds);
 
-        await service.UpdateOddsAndSettle(hybridMatch, odds);
+        var originalTransId = new List<TranInfo>();
+
+        await service.UpdateOddsAndSettle(hybridMatch, odds, originalTransId);
 
         await mockRepository.Received(1).ExecuteAsync(
             Arg.Is<CalculateHybridMatchCriteria>(c =>
@@ -197,9 +223,10 @@ public class JackTimeHybridServiceTests
                 c.TransIds == "1,2" &&
                 c.DbServer == "Server1"));
 
-        await mockHybridLogService.Received(1).InvalidTransIdsSendLetstalk(
+        await mockHybridLogService.Received(1).InvalidTransIdsUpdateOdds(
             hybridMatch,
-            Arg.Is<List<ValidationTransIds>>(list => list.Count == 1 && list[0].WrongOddsTransIds == "3"));
+            Arg.Is<List<ValidationTransIds>>(list => list.Count == 1 && list[0].WrongOddsTransIds == "3"),
+            Arg.Any<List<TranInfo>>());
     }
 
     [Fact]
@@ -233,10 +260,12 @@ public class JackTimeHybridServiceTests
         mockOddsService.UpdateOdds(odds, "Server1", hybridMatch.UserId, hybridMatch.MatchId)
             .Returns(validationTransIds);
 
-        await service.UpdateOddsAndSettle(hybridMatch, odds);
+        var originalTransId = new List<TranInfo>();
+
+        await service.UpdateOddsAndSettle(hybridMatch, odds, originalTransId);
 
         await mockRepository.Received(1).ExecuteAsync(Arg.Any<CalculateHybridMatchCriteria>());
-        await mockHybridLogService.DidNotReceive().InvalidTransIdsSendLetstalk(Arg.Any<HybridMatch>(), Arg.Any<List<ValidationTransIds>>());
+        await mockHybridLogService.DidNotReceive().InvalidTransIdsUpdateOdds(Arg.Any<HybridMatch>(), Arg.Any<List<ValidationTransIds>>(), Arg.Any<List<TranInfo>>());
     }
 
     [Fact]
@@ -270,12 +299,15 @@ public class JackTimeHybridServiceTests
         mockOddsService.UpdateOdds(odds, "Server1", hybridMatch.UserId, hybridMatch.MatchId)
             .Returns(validationTransIds);
 
-        await service.UpdateOddsAndSettle(hybridMatch, odds);
+        var originalTransId = new List<TranInfo>();
+
+        await service.UpdateOddsAndSettle(hybridMatch, odds, originalTransId);
 
         await mockRepository.DidNotReceive().ExecuteAsync(Arg.Any<CalculateHybridMatchCriteria>());
-        await mockHybridLogService.Received(1).InvalidTransIdsSendLetstalk(
+        await mockHybridLogService.Received(1).InvalidTransIdsUpdateOdds(
             hybridMatch,
-            Arg.Is<List<ValidationTransIds>>(list => list.Count == 1 && list[0].WrongOddsTransIds == "1,2"));
+            Arg.Is<List<ValidationTransIds>>(list => list.Count == 1 && list[0].WrongOddsTransIds == "1,2"),
+            Arg.Any<List<TranInfo>>());
     }
 
     [Fact]
@@ -309,12 +341,15 @@ public class JackTimeHybridServiceTests
         mockOddsService.UpdateOdds(odds, Arg.Any<string>(), hybridMatch.UserId, hybridMatch.MatchId)
             .Returns(validationTransIds);
 
-        await service.UpdateOddsAndSettle(hybridMatch, odds);
+        var originalTransId = new List<TranInfo>();
+
+        await service.UpdateOddsAndSettle(hybridMatch, odds, originalTransId);
 
         await mockOddsService.Received(2).UpdateOdds(odds, Arg.Any<string>(), hybridMatch.UserId, hybridMatch.MatchId);
-        await mockHybridLogService.Received(1).InvalidTransIdsSendLetstalk(
+        await mockHybridLogService.Received(1).InvalidTransIdsUpdateOdds(
             hybridMatch,
-            Arg.Is<List<ValidationTransIds>>(list => list.Count == 2 && list.All(v => v.WrongOddsTransIds == "1")));
+            Arg.Is<List<ValidationTransIds>>(list => list.Count == 2 && list.All(v => v.WrongOddsTransIds == "1")),
+            Arg.Any<List<TranInfo>>());
     }
 
     [Fact]
@@ -348,7 +383,9 @@ public class JackTimeHybridServiceTests
         mockOddsService.UpdateOdds(odds, "Server1", hybridMatch.UserId, hybridMatch.MatchId)
             .Returns(validationTransIds);
 
-        await service.UpdateOddsAndSettle(hybridMatch, odds);
+        var originalTransId = new List<TranInfo>();
+
+        await service.UpdateOddsAndSettle(hybridMatch, odds, originalTransId);
 
         await mockRepository.Received(1).ExecuteAsync(
             Arg.Is<CalculateHybridMatchCriteria>(c =>
@@ -358,12 +395,13 @@ public class JackTimeHybridServiceTests
                 c.TransIds == "1" &&
                 c.DbServer == "Server1"));
 
-        await mockHybridLogService.Received(1).InvalidTransIdsSendLetstalk(
+        await mockHybridLogService.Received(1).InvalidTransIdsUpdateOdds(
             hybridMatch,
             Arg.Is<List<ValidationTransIds>>(list =>
                 list.Count == 1 &&
                 list[0].InvalidTransIds == "2" &&
-                string.IsNullOrEmpty(list[0].WrongOddsTransIds)));
+                string.IsNullOrEmpty(list[0].WrongOddsTransIds)),
+            Arg.Any<List<TranInfo>>());
     }
 
     [Fact]
@@ -395,6 +433,9 @@ public class JackTimeHybridServiceTests
 
         var result = await service.GetHyBridTransId(matchId, string.Empty);
 
-        Assert.Equal("1,2,3", result);
+        Assert.Equal(3, result.Count);
+        Assert.Equal("1", result[0].TransId);
+        Assert.Equal("2", result[1].TransId);
+        Assert.Equal("3", result[2].TransId);
     }
 }
