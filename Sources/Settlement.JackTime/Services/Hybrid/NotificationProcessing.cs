@@ -1,6 +1,8 @@
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Settlement.JackTime.Criteria;
 using Settlement.JackTime.Models;
+using Settlement.Shared.Models;
 
 namespace Settlement.JackTime.Services.Hybrid;
 
@@ -9,11 +11,18 @@ public interface INotificationProcessing
     Task ProcessNotifications();
 }
 
-public class NotificationProcessing(IGetNotificationService getNotificationService, IDynamicRepository repository) : INotificationProcessing
+public class NotificationProcessing(
+    IGetNotificationService getNotificationService,
+    IDynamicRepository repository,
+    IOptions<AppSettingsKey> options) : INotificationProcessing
 {
     public async Task ProcessNotifications()
     {
-        var offSetCriteria = new GetOffsetCriteria();
+        var offSetCriteria = new GetOffsetCriteria
+        {
+            Environment = options.Value.EnvironmentName
+        };
+
         await repository.ExecuteAsync(offSetCriteria);
         var notifications = await getNotificationService.GetNotifications(offSetCriteria.MaxOffSet);
         if (notifications != null)
@@ -27,7 +36,8 @@ public class NotificationProcessing(IGetNotificationService getNotificationServi
         var criteria = new InsertHybridParlayLogCriteria
         {
             LegOddsJSON = JsonConvert.SerializeObject(notification.Notifications),
-            OffSet = notification.OffSet
+            OffSet = notification.OffSet,
+            Environment = options.Value.EnvironmentName
         };
         await repository.ExecuteAsync(criteria);
     }

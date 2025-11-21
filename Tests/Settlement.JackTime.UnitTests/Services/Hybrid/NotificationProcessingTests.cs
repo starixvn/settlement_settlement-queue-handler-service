@@ -1,8 +1,10 @@
 using Fanex.Data.Repository;
+using Microsoft.Extensions.Options;
 using NSubstitute;
 using Settlement.JackTime.Criteria;
 using Settlement.JackTime.Models;
 using Settlement.JackTime.Services.Hybrid;
+using Settlement.Shared.Models;
 using Xunit;
 
 namespace Settlement.JackTime.UnitTests.Services.Hybrid;
@@ -17,7 +19,13 @@ public class NotificationProcessingTests
     {
         mockGetNotificationService = Substitute.For<IGetNotificationService>();
         mockRepository = Substitute.For<IDynamicRepository>();
-        service = new NotificationProcessing(mockGetNotificationService, mockRepository);
+        var mockOptions = Substitute.For<IOptions<AppSettingsKey>>();
+
+        mockOptions.Value.Returns(new AppSettingsKey
+        {
+            EnvironmentName = "LOCAL"
+        });
+        service = new NotificationProcessing(mockGetNotificationService, mockRepository, mockOptions);
     }
 
     [Fact]
@@ -57,7 +65,7 @@ public class NotificationProcessingTests
     }
 
     [Fact]
-    public async Task ProcessNotifications_WhenNotificationIsNull_ShouldThrowNullReferenceException()
+    public async Task ProcessNotifications_WhenNotificationIsNull_ShouldNotThrowException()
     {
         var maxOffset = 100L;
 
@@ -71,9 +79,11 @@ public class NotificationProcessingTests
 
         mockGetNotificationService.GetNotifications(maxOffset).Returns(Task.FromResult<Notification>(null!));
 
-        await Assert.ThrowsAsync<NullReferenceException>(async () => await service.ProcessNotifications());
+        await service.ProcessNotifications();
+
         await mockRepository.Received(1).ExecuteAsync(Arg.Any<GetOffsetCriteria>());
         await mockGetNotificationService.Received(1).GetNotifications(maxOffset);
+        await mockRepository.DidNotReceive().ExecuteAsync(Arg.Any<InsertHybridParlayLogCriteria>());
     }
 
     [Fact]

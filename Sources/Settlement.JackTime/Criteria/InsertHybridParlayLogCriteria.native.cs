@@ -6,6 +6,8 @@ public class InsertHybridParlayLogCriteria : INonQueryCommand
 
     public long OffSet { get; set; }
 
+    public string Environment { get; set; }
+
     public string ErrMsg { get; set; }
 
     public int ErrCode { get; set; }

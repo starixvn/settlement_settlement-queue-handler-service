@@ -1,6 +1,5 @@
 using Fanex.Settlement.MessageBridge.JackTime;
 using Fanex.SiteDbConnectionManager.Client.Services;
-using Newtonsoft.Json;
 using Polly;
 using Settlement.Consumer.Criteria;
 using Settlement.Consumer.Models.JackTimeHybrid;
@@ -44,8 +43,6 @@ public class HybridParlayServiceImp(
     public async Task<List<TranInfo>> GetHyBridTransId(int matchId, string action)
     {
         var siteDbServer = await siteDbClientService.GetActiveSiteDbAsync();
-        await LogService.InfoAsync($"JackTime Hybrid SiteDb {JsonConvert.SerializeObject(siteDbServer)}");
-
         var tasks = siteDbServer
              .Select(server => FetchTranInfoWithRetry(matchId, action, server.SiteName))
              .ToList();

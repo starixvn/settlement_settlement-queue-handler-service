@@ -21,6 +21,8 @@ public class HybridParlayConsumer(
             await LogService.InfoAsync($"JackTime Hybrid Consumer Started: MatchId({matchId})");
 
             var originalTransId = await hybridParlayService.GetHyBridTransId(matchId, hybridMatch.Action);
+            await LogService.InfoAsync($"JackTime Hybrid GetHyBridTransId ({originalTransId.Count}) - MatchId {matchId}");
+
             if (originalTransId.Count > 0)
             {
                 var (Odds, InvalidTransId) = await hybridParlayService.GetOddsAndInvalidTransId(matchId, hybridMatch.LogDate, originalTransId);
