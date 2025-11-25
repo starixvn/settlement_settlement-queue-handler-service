@@ -1,6 +1,5 @@
 using Fanex.Settlement.MessageBridge.JackTime;
 using MassTransit;
-using Newtonsoft.Json;
 using Settlement.Consumer.Constants;
 using Settlement.Consumer.Services;
 using System.Data;
@@ -18,8 +17,6 @@ public class HybridParlayConsumer(
             var hybridMatch = context.Message;
             var matchId = hybridMatch.MatchId;
 
-            await LogService.InfoAsync($"JackTime Hybrid Consumer Started: MatchId({matchId})");
-
             var originalTransId = await hybridParlayService.GetHyBridTransId(matchId, hybridMatch.Action);
             await LogService.InfoAsync($"JackTime Hybrid GetHyBridTransId ({originalTransId.Count}) - MatchId {matchId}");
 
@@ -28,9 +25,6 @@ public class HybridParlayConsumer(
                 var (Odds, InvalidTransId) = await hybridParlayService.GetOddsAndInvalidTransId(matchId, hybridMatch.LogDate, originalTransId);
 
                 await hybridParlayLogService.InvalidTransIdsFetchNewOdds(hybridMatch, InvalidTransId, originalTransId);
-
-                await LogService.InfoAsync($"JackTime Hybrid Consumer Get Odds: MatchId({matchId}) - {JsonConvert.SerializeObject(Odds)}");
-
                 await hybridParlayService.UpdateOddsAndSettle(hybridMatch, Odds, originalTransId);
             }
         }

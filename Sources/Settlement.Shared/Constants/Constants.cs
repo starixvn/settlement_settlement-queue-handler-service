@@ -2,5 +2,5 @@
 
 public static class MessageGroup
 {
-    public const int HybridParlay = 6;
+    public const int HybridParlay = 7;
 }
